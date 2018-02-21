@@ -1,31 +1,116 @@
 import React, { Component } from 'react';
 import logo from './logo.svg';
-import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import './App.css';
-import {Card, CardActions, CardTitle, CardText} from 'material-ui/Card';
-import FlatButton from 'material-ui/FlatButton';
+import 'semantic-ui-css/semantic.min.css';
+
+import {Form, Radio, Grid, Card, Icon, Image, Dropdown } from 'semantic-ui-react'
+
 
 class App extends Component {
+  state = {}
+  handleChange = (e, { value }) => this.setState({ value })
+
   render() {
     return (
-      <MuiThemeProvider>
-        <div className="App">
-          <header className="App-header">
-            <img src={logo} className="App-logo" alt="logo" />
-            <h1 className="App-title">TRUE VOTE</h1>
-          </header>
-          <Card>
-            <CardTitle title="Catalanian Referendum" subtitle="Secession from the Spanish State" />
-            <CardText>
-              Identity Information <br/><br/>
-              Vote
-            </CardText>
-            <CardActions>
-              <FlatButton label="Vote" />
-            </CardActions>
-          </Card>
+    <div class="App">
+      <div class="ui attached stackable menu">
+        <div class="ui container">
+          <a class="item">
+            <i class="home icon"></i> Vote
+          </a>
+          <a class="item">
+            <i class="grid layout icon"></i> Setup
+          </a>
+          <div class="ui simple dropdown item">
+            More
+            <i class="dropdown icon"></i>
+            <div class="menu">
+              <a class="item"><i class="edit icon"></i> Edit Profile</a>
+              <a class="item"><i class="globe icon"></i> Choose Language</a>
+              <a class="item"><i class="settings icon"></i> Account Settings</a>
+            </div>
+          </div>
+          <div class="right item">
+            <div class="ui input"><input type="text" placeholder="Search..."/></div>
+          </div>
         </div>
-      </MuiThemeProvider>
+      </div>
+      <div class="ui three column grid">
+        <div class="row">
+          <div class="column"></div>
+          <div class="column"></div>
+          <div class="column"></div>
+        </div>
+        <div class="row">
+          <div class="column"></div>
+          <div class="column">
+            <h2 class="ui purple image header">
+              <div class="content">
+                Enter Citizen Information
+              </div>
+            </h2>
+            <form class="ui large form">
+              <div class="ui stacked segment">
+                <div class="field">
+                  <div class="ui left icon input">
+                    <i class="person icon"></i>
+                    <input type="username" name="first_name" placeholder="First Name"/>
+                  </div>
+                </div>
+                <div class="field">
+                  <div class="ui left icon input">
+                    <i class="person icon"></i>
+                    <input type="username" name="first_name" placeholder="Last Name"/>
+                  </div>
+                </div>
+                <div class="field">
+                  <div class="ui left icon input">
+                    <i class="person icon"></i>
+                    <input type="username" name="first_name" placeholder="License ID"/>
+                  </div>
+                </div>
+                <div class="field">
+                  <div class="ui left icon input">
+                    <i class="person icon"></i>
+                    <input type="username" name="first_name" placeholder="Vote"/>
+                  </div>
+                </div>
+                <div class="ui row grid centered">
+                  <Form.Field style={{margin:20}}>
+                    <Radio
+                      label='Mugabe'
+                      name='radioGroup'
+                      value='this'
+                      checked={this.state.value === 'this'}
+                      onChange={this.handleChange}
+                    />
+                  </Form.Field>
+                  <Form.Field style={{margin:20}}>
+                    <Radio
+                      label='Incumbent'
+                      name='radioGroup'
+                      value='that'
+                      checked={this.state.value === 'that'}
+                      onChange={this.handleChange}
+                    />
+                  </Form.Field>
+                </div>
+                <div class="ui fluid large purple submit button">Login</div>
+              </div>
+
+              <div class="ui error message"></div>
+
+            </form>
+          </div>
+        </div>
+        <div class="column"></div>
+      </div>
+      <div class="row">
+        <div class="column"></div>
+        <div class="column"></div>
+        <div class="column"></div>
+      </div>
+    </div>
     );
   }
 }
