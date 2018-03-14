@@ -88,4 +88,9 @@ We are using the [IOTA tangle](https://iota.org/) to store all our vote data. We
             specified poll or the number of votes is not appropriate for the poll
         500 - ERROR could not query or add to the ledger
       '''
-     
+
+## Challenges
+
+- ensuring that random user cannot simply add an entry to the ledger that will emulate our data format & be counted as a vote
+- verifying keys of poll operators when placing votes
+- encrypting vote data
