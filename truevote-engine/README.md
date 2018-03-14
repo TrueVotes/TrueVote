@@ -106,4 +106,4 @@ We are using the [IOTA tangle](https://iota.org/) to store all our vote data. We
 
 ## TO ADD
 
-- if known IOTA account (seed), cannot spoof. so each poll operator will have an account ID and seed. account ID will be listed on poll instantiation message, and seed will be private & required to send from that account. for user data encryption, can use a public/private key pair and put public key on poll instantiation message, encrypt (and potentially hash) user data, and then only allow a small group to decrypt it with the private key. if compromised, could start new poll.
+- if known IOTA account (seed), cannot spoof. so each poll operator will have an account ID and seed. account ID will be listed on poll instantiation message, and seed will be private & required to send from that account. for user data encryption, poll operator will generate hash for the user based on a set of requirements (set of items specified in the poll instantiation), then will turn laptop over to the voter to place votes. once votes placed, poll operator will do this for next person. functions reserved for poll operations will be password protected.
