@@ -94,3 +94,4 @@ We are using the [IOTA tangle](https://iota.org/) to store all our vote data. We
 - ensuring that random user cannot simply add an entry to the ledger that will emulate our data format & be counted as a vote
 - verifying keys of poll operators when placing votes
 - encrypting vote data
+- ensure vote has been accepted on tangle
