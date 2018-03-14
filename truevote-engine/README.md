@@ -23,6 +23,8 @@ We are using the [IOTA tangle](https://iota.org/) to store all our vote data. We
                         "max_num_responses": NUMBER (0 <= NUMBER <= n)
                   }
             ],
+            "start_time": DATETIME,
+            "end_time": DATETIME,
             "poll_operators": [
                   HASHED_KEY_0,
                   HASHED_KEY_1
