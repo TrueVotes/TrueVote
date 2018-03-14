@@ -68,6 +68,7 @@ We are using the [IOTA tangle](https://iota.org/) to store all our vote data. We
                         response_string_n: response_id_n
                   }
             },
+            "timestamp": DATETIME,
             "poll_operator": HASHED_KEY,
             "unique_user_identifier": ???
       }
