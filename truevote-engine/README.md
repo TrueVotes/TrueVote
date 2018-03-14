@@ -100,3 +100,10 @@ We are using the [IOTA tangle](https://iota.org/) to store all our vote data. We
 - verifying keys of poll operators when placing votes
 - encrypting vote data --> encrypted with private key distributed to select group of trusted people (e.g. poll operators)
 - ensure vote has been accepted on tangle --> buffer on webapp until accepted & add functionality for a user to check his/her vote
+
+
+
+
+## TO ADD
+
+- if known IOTA account (seed), cannot spoof. so each poll operator will have an account ID and seed. account ID will be listed on poll instantiation message, and seed will be private & required to send from that account. for user data encryption, can use a public/private key pair and put public key on poll instantiation message, encrypt (and potentially hash) user data, and then only allow a small group to decrypt it with the private key. if compromised, could start new poll.
