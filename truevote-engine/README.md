@@ -9,6 +9,24 @@ We are using the [IOTA tangle](https://iota.org/) to store all our vote data. We
 * ##### format: poll initialization metadata
 
       {
+            "poll_id": STRING,
+            "vote_definitions": [
+                  {
+                        "title": STRING,
+                        "responses": {
+                              response_string_0: response_id_0,
+                              response_string_1: response_id_1,
+                              ...
+                              response_string_n: response_id_n
+                        },
+                        "min_num_responses": NUMBER (0 <= NUMBER <= n),
+                        "max_num_responses": NUMBER (0 <= NUMBER <= n)
+                  }
+            ],
+            "poll_operators": [
+                  HASHED_KEY_0,
+                  HASHED_KEY_1
+            ]
       }
 
 * ##### function: initializePoll(poll_metadata):
@@ -39,6 +57,17 @@ We are using the [IOTA tangle](https://iota.org/) to store all our vote data. We
 * ##### format: vote placement data
 
       {
+            "poll_id": STRING,
+            "vote_responses": {
+                  title: {
+                        response_string_0: response_id_0,
+                        response_string_1: response_id_1,
+                        ...
+                        response_string_n: response_id_n
+                  }
+            },
+            "poll_operator": HASHED_KEY,
+            "unique_user_identifier": ???
       }
 
 * ##### function: getVoteOptions(poll_id):
@@ -52,10 +81,11 @@ We are using the [IOTA tangle](https://iota.org/) to store all our vote data. We
 
 * ##### function: placeVote(poll_id):
       '''
-      @summary: adds a vote to the ledger
+      @summary: adds a vote to the ledger and verifies that it is a valid vote
       @returns:
         200 - OK vote was added to the ledger
         400 - ERROR poll ID does not exist or vote option does not exist for the 
             specified poll or the number of votes is not appropriate for the poll
         500 - ERROR could not query or add to the ledger
       '''
+     
