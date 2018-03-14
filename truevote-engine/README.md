@@ -70,8 +70,10 @@ We are using the [IOTA tangle](https://iota.org/) to store all our vote data. We
             },
             "timestamp": DATETIME,
             "poll_operator": HASHED_KEY,
-            "unique_user_identifier": ???
+            "unique_user_identifier": encrypted_json_object
       }
+      
+* note: the unique user identifier will be a JSON object that will be encrypted with a private key that will be generated during the development of this project and be shared only with select trusted sources (e.g. poll operators, government official) such that only they can decrypt this data and verify uniqueness and validity for users
 
 * ##### function: getVoteOptions(poll_id):
       '''
