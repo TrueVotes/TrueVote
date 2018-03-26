@@ -1,0 +1,22 @@
+html, body {
+	background-color: #140c3f;
+}
+
+.segment {display: flex; align-items: center}
+
+.spacer {
+	height:100px;
+}
+
+.cplacing {
+	margin-top: 40px;
+}
+
+.page {
+  padding: 40px;
+   
+}
+
+.choice {
+	padding:5px;
+}
