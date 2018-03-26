@@ -8,11 +8,11 @@ We are using the [IOTA tangle](https://iota.org/) to store all our vote data. We
 
 For every poll created, there will be a single 'poll initialization' message published to the tangle. This message will contain all required details for the poll, such as the poll name and ID, the questions and response options, the limitations for possible responses, the start and end date of the poll, and a list of poll operators (discussed below).
 
-* ##### format: poll initialization metadata
+* ##### poll initialization metadata
 
       {
             "poll_id": STRING,
-            "destination_address": STRING,
+            "destination_account": STRING,
             "vote_definitions": [
                   {
                         "title": STRING,
@@ -37,7 +37,7 @@ For every poll created, there will be a single 'poll initialization' message pub
       
 To further elaborate on these terms:
 - poll_id: a unique string (to all previous polls) that will identify the poll
-- destination_address: the address of the wallet to which to send the transaction
+- destination_account: the account ID of the wallet to which to send the transaction
 - vote_definitions: a list of questions and possible responses
       - title: the name/question
       - responses: a list of possible responses mapped to IDs to identify the responses
@@ -49,7 +49,7 @@ To further elaborate on these terms:
 - voter_identifiers: a list of identifiers (e.g. first name, SSN) to identify the voter
 - poll_operators: the account IDs of the poll operators
 
-The poll ID and destination address together will be used to count responses after voting has been completed. Only votes whose timestamp falls within the valid time range & whose source address stems from one of the poll operator wallets will be considered. The user idenfitiers will be all capitalized.
+The poll ID and destination account ID together will be used to count responses after voting has been completed. Only votes whose timestamp falls within the valid time range & whose source account ID stems from one of the poll operator wallets will be considered. The user idenfitiers will be all capitalized.
 
 ## Poll Operators
 
@@ -65,7 +65,7 @@ In the future, we would like to support identify verification through an API to 
 
 ## Vote Format
 
-* ##### format: vote placement data
+* ##### vote placement data
 
       {     
             "poll_id": STRING,
@@ -78,8 +78,8 @@ In the future, we would like to support identify verification through an API to 
             }),
             "unique_user_identifier": HASH
       }
-      
-Explanation:
+
+Term explanations:
 - poll_id: ID identifying the poll for which this vote will be cast
 - timestamp: current timestamp attached to the vote by the webapp
 - vote_responses: an encrypted map of vote responses
@@ -89,76 +89,116 @@ Note that to encrypt the vote responses, a key will have been distributed to the
 
 ## Application Specifications
 
+### Classes
+
+* ##### class VoteDefinition {
+
+      /**
+       * Create a VoteDefinition.
+       *
+       * @param {string} title - the title of the question (e.g. "Who should become president?")
+       * @param {map<string:int>} responses - the response texts mapped to unique response IDs
+       * @param {int} min_num_responses - the minimum number of responses allowed
+       * @param {int} max_num_responses - the maximum number of responses allowed
+       */
+      constructor(title, responses, min_num_responses, max_num_responses) {}
+       
+      /**
+       * Get the title
+       */
+      getTitle() {}
+      
+      /**
+       * Get a map of response texts mapped to unique response IDs
+       */
+      getResponses() {}
+       
+      /**
+       * Get the minimum number of responses allowed
+       */
+      getMinNuResponses() {}
+       
+      /**
+       * Get the maximum number of responses allowed
+       */
+      getMaxNumResponses() {}
+}
+
 ### Poll Initialization
 
-* ##### function: initializePoll(poll_metadata):
-      '''
-      @summary:
-        (i) ensure this is a unique poll ID
-        (ii) add poll initialization message to the ledger with the poll metadata
-      @returns:
-        202 - OK poll ID is unique and poll initialization message successfully
-            added to the leger with the poll metadata
-        406 - ERROR poll ID was is unique
-        500 - ERROR poll initialization message was not added to the ledger or
-            ledger could not successfully be queried properly
-      '''
+* ##### function initializePollFromTemplate(path):
+      /**
+       * Will initialize poll based on the data entered into a template JSON file
+       * of the poll initialization metadata described in the section above. This
+       * function parses the template and calls the initializePoll() function below.
+       *
+       * @params {string} path - the relative path to the filled in template
+       */
 
-* ##### function: ensureUniquePollId(poll_id):
-      '''
-      @summary: check the ledger to ensure that there currently exists no poll on the
-              the ledger with the passed in poll ID
-      @returns: 
-        200 - OK poll ID is unique
-        406 - ERROR poll ID is not unique
-        500 - ERROR ledger could not be queried properly
-      '''
+* ##### function initializePoll(poll_id, destination_account, vote_definitions, start_time, end_time, voter_identifiers, poll_operators):
+      /**
+       * Will initialize a poll by ensuring poll metadata is valid (by calling the      
+       * ensureUniquePollID() function below) and attaching the message to the tangle.
+       *
+       * @params {string} poll_id - a unique identifier for the poll
+       * @param {int} destination_account - the account ID of to which to send votes
+       * @param {VoteDefinition[]} vote_definitions - the list of vote definitions
+       * @param {Date} start_time - the start date & time for poll to open
+       * @param {Date} end_time - the end date & time for poll to close
+       * @param {string[]} voter_identifiers - list of identifiers to hash for the user
+       * @param {int[]} poll_operators - list of account IDs for poll operators
+       *
+       * @throws exception if the poll ID is not unique
+       * @throws exception if poll initialization message could not be attached to the tangle
+       */
 
+* ##### function ensureUniquePollId(poll_id):
+      /**
+       * Query the ledger to ensure that there currently exists no poll in the tangle
+       * with the passed in poll ID
+       *
+       * @throws exception if connection to query tangle could not be established
+       *
+       * @returns true if unique, false if not
+       */
+       
 ### Vote Placement
 
-* ##### format: vote placement data
-
-      {
-            "poll_id": STRING,
-            "vote_responses": {
-                  title: {
-                        response_string_0: response_id_0,
-                        response_string_1: response_id_1,
-                        ...
-                        response_string_n: response_id_n
-                  }
-            },
-            "timestamp": DATETIME,
-            "poll_operator": HASHED_KEY,
-            "unique_user_identifier": encrypted_json_object
-      }
-      
-* _note: the unique user identifier will be a JSON object that will be encrypted with a private key that will be generated during the development of this project and be shared only with select trusted sources (e.g. poll operators, government official) such that only they can decrypt this data and verify uniqueness and validity for users_
-
-* ##### function: getVoteOptions(poll_id):
-      '''
-      @summary: get a list of possible vote options for a passed in poll ID
-      @returns:
-        200 - OK a list of the vote options for the specified poll
-        400 - ERROR poll ID does not exist
-        500 - ERROR ledger could not be queried
-      '''
-
-* ##### function: placeVote(poll_id):
-      '''
-      @summary: adds a vote to the ledger and verifies that it is a valid vote
-      @returns:
-        200 - OK vote was added to the ledger
-        400 - ERROR poll ID does not exist or vote option does not exist for the 
-            specified poll or the number of votes is not appropriate for the poll
-        500 - ERROR could not query or add to the ledger
-      '''
-
+* ##### function getVoteDefinitions():
+      /**
+       * Get a list of the VoteDefinition objects part of this poll. When the polling station
+       * was started in the webapp, the poll initialization message was saved locally. This
+       * will be queried to retrieve a list of all these objects. The TrueVote webapp will then
+       * iterate through this list and show a separate screen for each vote, performing instant
+       * valiation to ensure the number of votes is accurate and saving the vote locally until
+       * all votes have a response (or no response if the min_num_responses is set to zero).
+       * 
+       * @returns the VoteDefinition objects for this poll
+       */
+       
+* ##### function placeVote():
+      /**
+       * This function will be called after the webapp has iterated through all vote definitions
+       * as defined in function above and the voter has responded to all required votes. This
+       * function will aggregate that vote data, encrypt it, and then attach it to the tangle. Note
+       * that the data required to attach it to the tangle (e.g. destination account ID) is saved
+       * locally from setting up the polling station, and can be retrieved by calling the function
+       * below.
+       *
+       * @throws exception if message could not be attached to tangle
+       */
+       
+* ##### function getDestinationAccount
+      /**
+       * Retrieve the ITOA destination account ID to which to send the message
+       * containing the voting data
+       *
+       * @returns the account ID of IOTA account to which to send the voting data
+       */
+       
 ## Challenges
 
-- ensuring that random user cannot simply add an entry to the ledger that will emulate our data format & be counted as a vote
-- verifying keys of poll operators when placing votes
-- encrypting vote data --> encrypted with private key distributed to select group of trusted people (e.g. poll operators)
-- ensure vote has been accepted on tangle --> buffer on webapp until accepted & add functionality for a user to check his/her vote
+- ensure vote has been accepted on tangle --> currently planning buffer on webapp until accepted & add functionality for a user to check his/her vote
+- mechanism to deal with messages not accepted to be attached to the tangle --> currently assuming all messages will be attached
 
 
