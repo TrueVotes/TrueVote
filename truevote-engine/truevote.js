@@ -31,7 +31,7 @@ exports.initializePollFromTemplate = function(path) {
  * Will initialize a poll by ensuring poll metadata is valid (by calling the      
  * ensureUniquePollID() function below) and attaching the message to the tangle.
  *
- * @params {string} poll_id - a unique identifier for the poll
+ * @param {string} poll_id - a unique identifier for the poll
  * @param {int} destination_account - the account ID of to which to send votes
  * @param {VoteDefinition[]} vote_definitions - the list of vote definitions
  * @param {Date} start_time - the start date & time for poll to open
