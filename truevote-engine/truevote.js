@@ -15,6 +15,25 @@ exports.node_info_test = function() {
 	});
 }
 
+/**
+ * Will attach a new transfer to the tangle.
+ *
+ * @param {string} destination_account - destination account ID
+ * @param {string} message - message to attach to transfer with the data
+ */
+exports.attachToTangle = function(destination_account, message) {
+  console.log('Beginning attachToTangle function.')
+}
+
+/**
+ * Will query the tangle.
+ *
+ * TODO: figure out parameters!!!
+ */
+exports.queryTangle = function() {
+  console.log('Beginning attachToTangle function.')
+}
+
 
 /**
  * Will initialize poll based on the data entered into a template JSON file
