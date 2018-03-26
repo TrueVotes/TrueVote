@@ -124,6 +124,23 @@ Note that to encrypt the vote responses, a key will have been distributed to the
       getMaxNumResponses() {}
 }
 
+### IOTA Interactions
+
+* ##### function attachToTangle():
+      /**
+       * Will attach a new transfer to the tangle.
+       *
+       * @param {string} destination_account - destination account ID
+       * @param {string} message - message to attach to transfer with the data
+       */
+       
+* ##### function queryTangle():
+      /**
+       * Will query the tangle
+       * 
+       * TODO: figure out parameters!!!
+       */
+
 ### Poll Initialization
 
 * ##### function initializePollFromTemplate(path):
@@ -132,7 +149,7 @@ Note that to encrypt the vote responses, a key will have been distributed to the
        * of the poll initialization metadata described in the section above. This
        * function parses the template and calls the initializePoll() function below.
        *
-       * @params {string} path - the relative path to the filled in template
+       * @param {string} path - the relative path to the filled in template
        */
 
 * ##### function initializePoll(poll_id, destination_account, vote_definitions, start_time, end_time, voter_identifiers, poll_operators):
@@ -140,7 +157,7 @@ Note that to encrypt the vote responses, a key will have been distributed to the
        * Will initialize a poll by ensuring poll metadata is valid (by calling the      
        * ensureUniquePollID() function below) and attaching the message to the tangle.
        *
-       * @params {string} poll_id - a unique identifier for the poll
+       * @param {string} poll_id - a unique identifier for the poll
        * @param {int} destination_account - the account ID of to which to send votes
        * @param {VoteDefinition[]} vote_definitions - the list of vote definitions
        * @param {Date} start_time - the start date & time for poll to open
