@@ -2,7 +2,9 @@ html, body {
 	background-color: #140c3f;
 }
 
-.segment {display: flex; align-items: center}
+.bump_down {
+	margin-top:50px;
+}
 
 .spacer {
 	height:100px;

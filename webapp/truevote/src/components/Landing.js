@@ -1,4 +1,4 @@
-import React, {Component} from 'react'
+import React, {Component} from 'react';
 import {Form, Radio, Grid, Card, Icon, Image, Dropdown } from 'semantic-ui-react'
 
 class Landing extends Component {
