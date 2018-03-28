@@ -22,7 +22,13 @@ const Home = () => (
 			      	<div class="field">
 	              <div class="ui left icon input">
 	                <i class="person icon"></i>
-	                <input type="username" name="first_name" placeholder="Poll ID"/>
+	                <input type="username" name="first_name" placeholder="Private Station Seed"/>
+	              </div>
+	            </div>
+	            <div class="field">
+	              <div class="ui left icon input">
+	                <i class="person icon"></i>
+	                <input type="username" name="first_name" placeholder="Poll Key"/>
 	              </div>
 	            </div>
 	            <div class="inline fields">
@@ -57,7 +63,7 @@ const Home = () => (
 		        </h2>
 			      <div class="ui large form">
 	            <div class="field">
-			      		<button class="ui button">Create</button>
+			      		<Link to='/newpoll'><button class="ui button">Create</button></Link>
 			      	</div>
 			      </div>
 			    </div>
