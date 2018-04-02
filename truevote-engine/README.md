@@ -28,11 +28,7 @@ For every poll created, there will be a single 'poll initialization' message pub
             ],
             "start_time": DATETIME,
             "end_time": DATETIME,
-            "voter_identifiers": [STRING],
-            "poll_operators": [
-                  WALLET_0,
-                  WALLET_1
-            ]
+            "voter_identifiers": [STRING]
       }
       
 To further elaborate on these terms:
