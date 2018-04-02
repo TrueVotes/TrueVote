@@ -1,0 +1,9 @@
+{
+    "poll_id" : "easti",
+    "destination_account" : "pizza_the_hut",
+    "voter_definitions" : "an array of stuff",
+    "start_time" : "sometime",
+    "end_time" : "maybe earlier",
+    "voter_identifiers" : "SSN",
+    "poll_operators" : "an array of pollers"
+}

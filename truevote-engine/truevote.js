@@ -3,6 +3,8 @@ const fs = require('fs');
 const crypto = require('crypto');
 
 
+//const FULL_NODE_ADDR_ATL = "https://peanut.iotasalad.org:14265";
+//const TEST_NODE = "http://148.251.101.174:14265";
 /* Access a main network node and use a random seed generated from terminal
  * to get things going. ;)
  */
@@ -26,7 +28,6 @@ exports.node_info_test = function() {
 	}
     });
 }
-
 
 /**
  * Helper function for parsing out useful client side data from a full node
@@ -350,7 +351,7 @@ exports.placeVote = function(seed, poll_id, voter_id, voter_responses) {
             const transfer = [
                 {
                     value : 0,
-                    address :  addr,
+                    address :  addr, // this might need to be 
                     message : tryteData
                 }
             ];
