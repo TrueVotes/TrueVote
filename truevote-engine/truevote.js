@@ -3,13 +3,12 @@ const fs = require('fs');
 const crypto = require('crypto');
 
 
-//const FULL_NODE_ADDR_ATL = "https://peanut.iotasalad.org:14265";
-//const TEST_NODE = "http://148.251.101.174:14265";
 /* Access a main network node and use a random seed generated from terminal
  * to get things going. ;)
  */
 const FULL_NODE_ADDR = "https://field.carriota.com:443";
 const SEED = "OLXCLVSZONEYGZHWRQYGWYLCECRNVREEJVCPEWVOYCKYGFLXPERVWRDM9W9GYWMJUJRWCVSXLRLFSNTRX";
+
 const iota = new IOTA({
     provider: FULL_NODE_ADDR
 });
@@ -33,14 +32,14 @@ exports.node_info_test = function() {
  * Helper function for parsing out useful client side data from a full node
  * response. Iota payloads are contained in the 'signatureMessageFragment' of
  * a full node's response. Oddly, the iota utility fromTrytes requires a tryteString
- * to e of even length. If it's odd, the utility return null. Consequently, the
+ * to of even length. If it's odd, the utility returns null. Consequently, the
  * tryte string must be stripped of its last tryte if the string is of odd length.
- * The string/payload will be submitted in JSON form, therefore go ahead an convert
- * it back to JSON for the client webapp.
+ * The string/payload will be submitted in JSON form, therefore we will go ahead an
+ * convert it back to JSON for the client webapp.
  * 
  * @param {string} iota_payload - payload in signatureMessageFragment of an iota
  *                                response
- * @retrun {object} the json object saved to the iota tangle
+ * @retrun {object} the json object representation saved on the iota tangle
  */
 function parseTrytePayload(iota_payload) {
     
@@ -50,14 +49,6 @@ function parseTrytePayload(iota_payload) {
     var obj = iota.utils.fromTrytes(iota_payload);
     obj = obj.substring(0, obj.indexOf("\u0000"));
     return JSON.parse(obj);
-}
-
-function parseTryteTag(iota_tag) {
-
-    if (iota_tag.length % 2 !== 0) {
-        iota_tag = iota_tag.substring(0, iota_tag.length - 1);
-    }
-    return iota.utils.fromTrytes(iota_tag);
 }
 
 /**
@@ -71,12 +62,11 @@ function parseTryteTag(iota_tag) {
 
 function parseTransaction(iota_response) {
 
-    var msg = {
+    const msg = {
         hash : iota_response[0].hash,
         address : iota_response[0].address,
         bundle : iota_response[0].bundle,
-        tryte_tag : iota_response[0].tag,
-        tag : parseTryteTag(iota_response[0].tag),
+        tag : iota_response[0].tag,
         payload : parseTrytePayload(iota_response[0].signatureMessageFragment)
     };
     return msg;
@@ -128,58 +118,44 @@ exports.queryTangle = function(addr) {
     });
 }
 
-/**
- * Will initialize poll based on the data entered into a template JSON file
- * of the poll initialization metadata described in the section above. This
- * function parses the template and calls the initializePoll() function below.
- *
- * @params {string} path - the relative path to the filled in template
- */
 exports.initializePollFromTemplate = function(path) {
 
     const template = JSON.parse(fs.readFileSync(path));
     return new Promise((resolve, reject) => {
 
-        ensureUniquePollId(template.poll_id)
-            .then((result) => {
+        iota.api.getNewAddress(SEED, (error, new_addr) => {
 
-                if (!result) {
-                    console.log(`Poll_ID ${poll_id} already exists on the tangle`);
-                    resolve(null);
-                }
+            if (error) {
+                console.error("Failed to genrate new address during poll init");
+                reject(error);
 
-                iota.api.getNewAddress(SEED, (error, addr) => {
+            } else {
+
+                template.poll_address = new_addr;
+                const tryteData = iota.utils.toTrytes(JSON.stringify(template));
+                const transfer = [
+                            {
+                                value : 0,
+                                address :  new_addr,
+                                message : tryteData
+                            }
+                ];
+
+                iota.api.sendTransfer(SEED, 1, 14, transfer, (error, result) => {
 
                     if (error) {
-                        console.error("Failed to genrate new address for poll initialization");
+
+                        console.error("Failed to publish vote template to tangle")
                         reject(error);
 
                     } else {
-                        const tryteTag = iota.utils.toTrytes(template.poll_id);
-                        delete template.poll_id;
-                        const tryteData = iota.utils.toTrytes(JSON.stringify(template));
-                        const transfer = [
-                            {
-                                value : 0,
-                                address :  addr,
-                                tag : tryteTag,
-                                message : tryteData
-                            }
-                        ];
 
-                        iota.api.sendTransfer(SEED, 1, 14, transfer, (error, result) => {
-                            if (error) {
-                                console.error("Failed to send vote template to tangle")
-                                reject(error);
-                            } else {
-                                console.log("Poll Successfully Initialized: ", result);
-                                resolve(parseTransaction(result));
-                            }
-                        });
+                        console.log("New poll successfully published: ", result);
+                        resolve(parseTransaction(result));
                     }
                 });
-
-            }).catch((error) => reject(error)); /* Reject error form unique poll call */
+            }
+        });
     });
 }
 
@@ -291,28 +267,33 @@ exports.ensureUniquePollId = ensureUniquePollId;
  * 
  * @returns the VoteDefinition objects for this poll
  */
-exports.getVoteDefinitions = function(poll_id) {
+exports.getVoteDefinitions = function(addr) {
 
-    if (!poll_id) {
-        return Promise.reject(new Error("Cannot get voter definitions with null poll_id"));
+    if (!addr) {
+        return Promise.reject(
+            new Error("Cannot get voter definitions with null address"));
     }
 
     return new Promise((resolve, reject) => {
+
         iota.api.findTransactionObjects(
             {
-                tags : [poll_id]
+                addresses : [addr]
             },
             (err, result) => {
-                if (err) {
-                    console.error("Failed to obtain voter definitions from poll_id: ", poll_id);
-                    reject(err);
-                } else {
 
-                    console.log("Vote Definitions: ", result);
-                    if (result.length === 0) {
-                        reject(new Error("No values returned in get voter definitions"));
-                        return;
-                    }                    
+                if (err) {
+                    
+                    console.error("Failed to obtain voter defns with addr: ",
+                                  addr);
+                    reject(err);
+
+                } else if (result.length === 0) {
+
+                    reject(new Error("No voter defns are returned with addr: ",
+                                     addr));
+                    
+                } else {
 
                     const response = parseTransaction(result);
                     resolve(response.payload.voter_definitions);
@@ -369,39 +350,41 @@ exports.placeVote = function(seed, poll_id, voter_id, voter_responses) {
 
 
 /**
- * Retrieve the ITOA destination account ID to which to send the message
+ * Retrieve the IOTA destination account ID to which to send the message
  * containing the voting data. Since iota usese a 
  *
  * @returns the account ID of IOTA account to which to send the voting data
  */
  
-exports.getDestinationAccount = function(poll_id) {
+exports.getDestinationAccount = function(addr) {
 
-    if (!poll_id) {
-        return Promise.reject(new Error("Cannot get voter definitions with null poll_id"));
+    if (!addr) {
+        return Promise.reject(
+            new Error("Cannot get voter definitions with null addr"));
     }
 
     return new Promise((resolve, reject) => {
+
         iota.api.findTransactionObjects(
             {
-                tags : [poll_id]
+                addresses : [addr]
             },
             (err, result) => {
+
                 if (err) {
+                    
                     console.error("Failed to obtain voter definitions from poll_id: ", poll_id);
                     reject(err);
+
+                } else if (result.length === 0) {
+
+                    reject(new Error("No values returned from definitions"));
+
                 } else {
-
-                    console.log("Destination Account: ", result);
-
-                    if (result.length === 0) {
-                        reject(new Error("No values returned in get voter definitions"));
-                        return;
-                    }
 
                     const response = parseTransaction(result);
                     resolve(response.payload.voter_definitions);
-                }
+                }              
             });
     });
 }
