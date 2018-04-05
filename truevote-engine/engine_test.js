@@ -19,6 +19,9 @@ engine.initializePollFromTemplate("./demo.json")
             .then((account) => console.log("Can get destination account: ", account))
             .catch((err) => console.log("destAccount failed: ", err));
 
+        engine.placeVote(res.address, "SSN-1001", {president : "george"})
+            .then((vote) => console.log("Vote successfully placed: ", vote))
+            .catch((err) => console.log("plaveVote failed: ", err));
         
     }).catch((err) => console.error(err));
 

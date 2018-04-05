@@ -126,6 +126,7 @@ exports.initializePollFromTemplate = function(path) {
         iota.api.getNewAddress(SEED, (error, new_addr) => {
 
             if (error) {
+
                 console.error("Failed to genrate new address during poll init");
                 reject(error);
 
@@ -174,10 +175,12 @@ exports.initializePollFromTemplate = function(path) {
  * @throws exception if the poll ID is not unique
  * @throws exception if poll initialization message could not be attached to the tangle
  */
-exports.initializePoll = function(poll_id, destination_account, vote_definitions,
-                                  start_time, end_time, voter_identifiers, poll_operators) {
+exports.initializePoll = function(destination_account, vote_definitions,
+                                  start_time, end_time, voter_identifiers,
+                                  poll_operators) {
 
     const poll_data = {
+        "poll_address" : "",
         "destination_account" : destination_account,
         "vote_definition" : vote_definition,
         "start_time" : start_time,
@@ -187,35 +190,40 @@ exports.initializePoll = function(poll_id, destination_account, vote_definitions
     };
 
     return new Promise((resolve, reject) => {
-        ensureUniquePollId(poll_id)
-            .then((result) => {
 
-                if (!result) {
-                    console.log(`Poll_ID ${poll_id} already exists on the tangle`);
-                    resolve(null);
-                }
+        iota.api.getNewAddress(SEED, (error, new_addr) => {
 
-                const tryteTag = iota.utils.toTrytes(template.poll_id);
+            if (error) {
+                console.error("Failed to generate new address poll init");
+                reject(error);
+                
+            } else {
+
+                poll_data.poll_address = new_addr;
                 const tryteData = iota.utils.toTrytes(JSON.stringify(poll_data));
                 const transfer = [
-                    {
-                        value : 0,
-                        address :  addr,
-                        tag : tryteTag,
-                        message : tryteData
-                    }
+                            {
+                                value : 0,
+                                address :  new_addr,
+                                message : tryteData
+                            }
                 ];
 
                 iota.api.sendTransfer(SEED, 1, 14, transfer, (error, result) => {
+
                     if (error) {
-                        console.error("Failed to send vote template to tangle");
+
+                        console.error("Failed to publish vote template to tangle")
                         reject(error);
+
                     } else {
-                        console.log("Poll Successfully Initialized: ", result);
+
+                        console.log("New poll successfully published: ", result);
                         resolve(parseTransaction(result));
                     }
                 });
-            }).catch((error) => reject(error));        
+            }
+        });
     });
 }
 
@@ -231,6 +239,8 @@ exports.initializePoll = function(poll_id, destination_account, vote_definitions
  * @returns true if unique, false if not
  */
 function ensureUniquePollId(poll_id) {
+
+    /* Pretty sure this is no longer needed. */
 
     if (!poll_id) {
         return Promise.reject(new Error("Cannot query tangle for null poll_id"));
@@ -313,38 +323,37 @@ exports.getVoteDefinitions = function(addr) {
  *
  * @throws exception if message could not be attached to tangle
  */
-exports.placeVote = function(seed, poll_id, voter_id, voter_responses) {
+exports.placeVote = function(addr, voter_id, voter_responses) {
 
-    iota.api.getNewAddress(SEED, (err, addr) => {
+    var data = {
+        id : crypto.createHash("sha256").update(voter_id).digest("hex"),
+        responses : voter_responses
+    };
 
-        if (err) {
-            console.error("Failed to obtain new address for vote placement:\n", err);
-
-        } else {
-
-            var data = {
-                poll : poll_id,
-                id : crypto.createHash("sha256").update(voter_id).digest("hex"),
-                responses : voter_responses
-            };
-
-            const tryteData = iota.utils.toTrytes(JSON.stringify(data));
-            const transfer = [
-                {
-                    value : 0,
-                    address :  addr, // this might need to be 
-                    message : tryteData
-                }
-            ];
-
-            iota.api.sendTransfer(SEED, 1, 14, transfer, (error, result) => {
-                if (error) {
-                    console.log("Failed to send the voter data to the tangle:\n", error);
-                } else {
-                    console.log("Vote Successfully Placed:\n", result);
-                }
-            });
+    const tryteData = iota.utils.toTrytes(JSON.stringify(data));
+    const transfer = [
+        {
+            value : 0,
+            address :  addr,
+            message : tryteData
         }
+    ];
+
+    console.log("Data: ", data);
+    console.log("Transfer: ", transfer[0]);
+    
+    return new Promise((resolve, reject) => {
+
+        iota.api.sendTransfer(SEED, 1, 14, transfer, (error, result) => {
+
+            if (error) {
+                console.error("Failed to submit individual vote to the tangle");
+                reject(error);
+            } else {
+                console.log("Vote Successfully Placed");
+                resolve(result)
+            }
+        });
     });
 }
 
