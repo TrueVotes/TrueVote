@@ -1,6 +1,7 @@
 const IOTA = require('iota.lib.js');
 const fs = require('fs');
 const crypto = require('crypto');
+const cryptico = require('cryptico');
 
 
 /* Access a main network node and use a random seed generated from terminal
@@ -28,6 +29,28 @@ exports.node_info_test = function() {
     });
 }
 
+function encrypt(payload, pub_key) {
+    return cryptico.encrypt(payload, pub_key).cipher;
+}
+
+function decrypt(payload, priv_key) {
+    return cryptico.decrypt(payload, priv_key);
+}
+
+function parseAndDecryptQuery(iota_response, priv_key) {
+    contents = [];
+    for (var resp of iota_response) {
+        payload = parseTrytePayload(resp.signatureMessageFragment);
+        payload_decrypted = cryptico.decrypt(payload, priv_key).plaintext;
+        if (payload_decrypted != undefined) {
+            payload = payload_decrypted
+        }
+        payload = JSON.parse(payload);
+        contents.push(payload);
+    }
+    return contents;
+}
+
 /**
  * Helper function for parsing out useful client side data from a full node
  * response. Iota payloads are contained in the 'signatureMessageFragment' of
@@ -48,7 +71,28 @@ function parseTrytePayload(iota_payload) {
     }
     var obj = iota.utils.fromTrytes(iota_payload);
     obj = obj.substring(0, obj.indexOf("\u0000"));
-    return JSON.parse(obj);
+    return obj;
+}
+
+/**
+ * Helper function for converting an iota response to a client friendly message, for multiple responses
+ *
+ * @param {array} iota_reponse - raw data response from the iota tangle after submitting
+ *                               a transaction
+ * @retrun {object} contents - client friendly array of payload messages
+ */
+
+function parseTransactions(iota_response) {
+    contents = [];
+    for (var resp of iota_response) {
+        payload = parseTrytePayload(resp.signatureMessageFragment);
+        try {
+            payload = JSON.parse(payload);
+        } catch (err) {
+        }
+        contents.push(payload);
+    }
+    return contents;
 }
 
 /**
@@ -61,13 +105,17 @@ function parseTrytePayload(iota_payload) {
  */
 
 function parseTransaction(iota_response) {
-
+    payload = parseTrytePayload(iota_response[0].signatureMessageFragment);
+    try {
+        payload = JSON.parse(payload);
+    } catch (err) {
+    }
     const msg = {
         hash : iota_response[0].hash,
         address : iota_response[0].address,
         bundle : iota_response[0].bundle,
         tag : iota_response[0].tag,
-        payload : parseTrytePayload(iota_response[0].signatureMessageFragment)
+        payload : payload
     };
     return msg;
 }
@@ -111,7 +159,38 @@ exports.queryTangle = function(addr) {
                                   error);
                     reject(error);
                 } else {
-                    resolve(parseTransaction(result));
+                    resolve(parseTransactions(result));
+                }
+            }
+        );
+    });
+}
+
+/**
+ * Will query the tangle based on the provided address assoicated with a
+ * place vote transaction. It will also decrypt the results if provided the private key
+ *
+ * @param {string} addr - the address of the transaction/individual vote
+ * TODO: figure out parameters!!!
+ */
+exports.queryAndDecryptTangle = function(addr, priv_key) {
+
+    if (!addr) {
+        return Promise.reject(new Error("Cannot query on null address"));
+    }
+
+    return new Promise((resolve, reject) => {
+        iota.api.findTransactionObjects(
+            {
+                addresses : [addr]
+            },
+            (error, result) => {
+                if (error) {
+                    console.error(`Failed to query tangle with address: ${addr}\n`,
+                                  error);
+                    reject(error);
+                } else {
+                    resolve(parseAndDecryptQuery(result, priv_key));
                 }
             }
         );
@@ -305,8 +384,14 @@ exports.getVoteDefinitions = function(addr) {
                     
                 } else {
 
-                    const response = parseTransaction(result);
-                    resolve(response.payload.voter_definitions);
+                    const response = parseTransactions(result);
+                    defn = "";
+                    for (var resp of response) {
+                        if (resp.voter_definitions != undefined) {
+                            defn = resp.voter_definitions
+                        }
+                    }
+                    resolve(defn);
                 }
             });
     });
@@ -323,14 +408,14 @@ exports.getVoteDefinitions = function(addr) {
  *
  * @throws exception if message could not be attached to tangle
  */
-exports.placeVote = function(addr, voter_id, voter_responses) {
+exports.placeVote = function(addr, voter_id, voter_responses, pub_key) {
 
     var data = {
         id : crypto.createHash("sha256").update(voter_id).digest("hex"),
         responses : voter_responses
     };
 
-    const tryteData = iota.utils.toTrytes(JSON.stringify(data));
+    const tryteData = iota.utils.toTrytes(encrypt(JSON.stringify(data), pub_key));
     const transfer = [
         {
             value : 0,
@@ -391,8 +476,14 @@ exports.getDestinationAccount = function(addr) {
 
                 } else {
 
-                    const response = parseTransaction(result);
-                    resolve(response.payload.voter_definitions);
+                    const response = parseTransactions(result);
+                    defn = "";
+                    for (var resp of response) {
+                        if (resp.destination_account != undefined) {
+                            defn = resp.destination_account
+                        }
+                    }
+                    resolve(defn);
                 }              
             });
     });
