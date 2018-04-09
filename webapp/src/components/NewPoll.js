@@ -5,7 +5,7 @@ import {Button, Form, Radio, Grid, Card, Icon, Image, Dropdown } from 'semantic-
 class NewPoll extends Component {
 	
 	state = {}
-  handleChange = (e, { value }) => this.setState({ value })
+	handleChange = (e, { value }) => this.setState({ value })
 
   poll_operators = [{'title': 'dude', 'type': 'NUMERIC'}]
 
