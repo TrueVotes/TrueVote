@@ -213,7 +213,7 @@ Note that to encrypt the vote responses, a key will have been distributed to the
        
 ## Challenges
 
-- ensure vote has been accepted on tangle --> currently planning buffer on webapp until accepted & add functionality for a user to check his/her vote
+- ensure vote has been accepted on the tangle --> currently planning buffer on webapp until accepted & add functionality for a user to check his/her vote
 - mechanism to deal with messages not accepted to be attached to the tangle --> currently assuming all messages will be attached
 
 
