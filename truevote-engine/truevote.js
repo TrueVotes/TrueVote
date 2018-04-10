@@ -1,18 +1,127 @@
-var IOTA = require('iota.lib.js')
-var iota = new IOTA({ provider: `http://eugene.iota.community:14265` })
+const IOTA = require('iota.lib.js');
+const fs = require('fs');
+const crypto = require('crypto');
+const cryptico = require('cryptico');
+
+
+/* Access a main network node and use a random seed generated from terminal
+ * to get things going. ;)
+ */
+const FULL_NODE_ADDR = "https://field.carriota.com:443";
+const SEED = "OLXCLVSZONEYGZHWRQYGWYLCECRNVREEJVCPEWVOYCKYGFLXPERVWRDM9W9GYWMJUJRWCVSXLRLFSNTRX";
+
+const iota = new IOTA({
+    provider: FULL_NODE_ADDR
+});
 
 /**
  * This is just a test to make sure we're connecting to the node. Also
  * let's us get information on said iota node.
  */
 exports.node_info_test = function() {
-	iota.api.getNodeInfo(function(error, success) {
-	    if (error) {
-	        console.error(error);
-	    } else {
-	        console.log(success);
-	    }
-	});
+
+    iota.api.getNodeInfo((err, success) => {
+	if (err) {
+	    console.error(err);
+	} else {
+	    console.log(success);
+	}
+    });
+}
+
+function encrypt(payload, pub_key) {
+    return cryptico.encrypt(payload, pub_key).cipher;
+}
+
+function decrypt(payload, priv_key) {
+    return cryptico.decrypt(payload, priv_key);
+}
+
+exports.decryptTransaction = function(data, priv_key) {
+    return cryptico.decrypt(data, priv_key);
+}
+
+function parseAndDecryptQuery(iota_response, priv_key) {
+    contents = [];
+    for (var resp of iota_response) {
+        payload = parseTrytePayload(resp.signatureMessageFragment);
+        payload_decrypted = cryptico.decrypt(payload, priv_key).plaintext;
+        if (payload_decrypted != undefined) {
+            payload = payload_decrypted
+        }
+        payload = JSON.parse(payload);
+        contents.push(payload);
+    }
+    return contents;
+}
+
+/**
+ * Helper function for parsing out useful client side data from a full node
+ * response. Iota payloads are contained in the 'signatureMessageFragment' of
+ * a full node's response. Oddly, the iota utility fromTrytes requires a tryteString
+ * to of even length. If it's odd, the utility returns null. Consequently, the
+ * tryte string must be stripped of its last tryte if the string is of odd length.
+ * The string/payload will be submitted in JSON form, therefore we will go ahead an
+ * convert it back to JSON for the client webapp.
+ * 
+ * @param {string} iota_payload - payload in signatureMessageFragment of an iota
+ *                                response
+ * @retrun {object} the json object representation saved on the iota tangle
+ */
+function parseTrytePayload(iota_payload) {
+    
+    if (iota_payload.length % 2 !== 0) {
+        iota_payload = iota_payload.substring(0, iota_payload.length - 1);
+    }
+    var obj = iota.utils.fromTrytes(iota_payload);
+    obj = obj.substring(0, obj.indexOf("\u0000"));
+    return obj;
+}
+
+/**
+ * Helper function for converting an iota response to a client friendly message, for multiple responses
+ *
+ * @param {array} iota_reponse - raw data response from the iota tangle after submitting
+ *                               a transaction
+ * @retrun {object} contents - client friendly array of payload messages
+ */
+
+function parseTransactions(iota_response) {
+    contents = [];
+    for (var resp of iota_response) {
+        payload = parseTrytePayload(resp.signatureMessageFragment);
+        try {
+            payload = JSON.parse(payload);
+        } catch (err) {
+        }
+        contents.push(payload);
+    }
+    return contents;
+}
+
+/**
+ * Helper function for converting an iota response to a client friendly message which
+ * enables data to be reaccessed (address, hash, tag) from the tangle.
+ *
+ * @param {array} iota_reponse - raw data response from the iota tangle after submitting
+ *                               a transaction
+ * @retrun {object} msg - client friendly objest containing useful meta data
+ */
+
+function parseTransaction(iota_response) {
+    payload = parseTrytePayload(iota_response[0].signatureMessageFragment);
+    try {
+        payload = JSON.parse(payload);
+    } catch (err) {
+    }
+    const msg = {
+        hash : iota_response[0].hash,
+        address : iota_response[0].address,
+        bundle : iota_response[0].bundle,
+        tag : iota_response[0].tag,
+        payload : payload
+    };
+    return msg;
 }
 
 /**
@@ -22,28 +131,116 @@ exports.node_info_test = function() {
  * @param {string} message - message to attach to transfer with the data
  */
 exports.attachToTangle = function(destination_account, message) {
-  console.log('Beginning attachToTangle function.')
+
+    /* Not entirely sure if this function is necessary because getTransfer()
+     * automatically attaches to the tangle when initializing poll or
+     * placing votes.
+     */
+    console.log('Beginning attachToTangle function.');
 }
 
 /**
- * Will query the tangle.
+ * Will query the tangle based on the provided address assoicated with a
+ * place vote transaction.
  *
+ * @param {string} addr - the address of the transaction/individual vote
  * TODO: figure out parameters!!!
  */
-exports.queryTangle = function() {
-  console.log('Beginning attachToTangle function.')
+exports.queryTangle = function(addr) {
+
+    if (!addr) {
+        return Promise.reject(new Error("Cannot query on null address"));
+    }
+
+    return new Promise((resolve, reject) => {
+        iota.api.findTransactionObjects(
+            {
+                addresses : [addr]
+            },
+            (error, result) => {
+                if (error) {
+                    console.error(`Failed to query tangle with address: ${addr}\n`,
+                                  error);
+                    reject(error);
+                } else {
+                    resolve(parseTransactions(result));
+                }
+            }
+        );
+    });
 }
 
-
 /**
- * Will initialize poll based on the data entered into a template JSON file
- * of the poll initialization metadata described in the section above. This
- * function parses the template and calls the initializePoll() function below.
+ * Will query the tangle based on the provided address assoicated with a
+ * place vote transaction. It will also decrypt the results if provided the private key
  *
- * @params {string} path - the relative path to the filled in template
+ * @param {string} addr - the address of the transaction/individual vote
+ * TODO: figure out parameters!!!
  */
+exports.queryAndDecryptTangle = function(addr, priv_key) {
+
+    if (!addr) {
+        return Promise.reject(new Error("Cannot query on null address"));
+    }
+
+    return new Promise((resolve, reject) => {
+        iota.api.findTransactionObjects(
+            {
+                addresses : [addr]
+            },
+            (error, result) => {
+                if (error) {
+                    console.error(`Failed to query tangle with address: ${addr}\n`,
+                                  error);
+                    reject(error);
+                } else {
+                    resolve(parseAndDecryptQuery(result, priv_key));
+                }
+            }
+        );
+    });
+}
+
 exports.initializePollFromTemplate = function(path) {
-  console.log('Beginning initializePollFromTemplate function.')
+
+    const template = JSON.parse(fs.readFileSync(path));
+    return new Promise((resolve, reject) => {
+
+        iota.api.getNewAddress(SEED, (error, new_addr) => {
+
+            if (error) {
+
+                console.error("Failed to genrate new address during poll init");
+                reject(error);
+
+            } else {
+
+                template.poll_address = new_addr;
+                const tryteData = iota.utils.toTrytes(JSON.stringify(template));
+                const transfer = [
+                            {
+                                value : 0,
+                                address :  new_addr,
+                                message : tryteData
+                            }
+                ];
+
+                iota.api.sendTransfer(SEED, 1, 14, transfer, (error, result) => {
+
+                    if (error) {
+
+                        console.error("Failed to publish vote template to tangle")
+                        reject(error);
+
+                    } else {
+
+                        console.log("New poll successfully published: ", result);
+                        resolve(parseTransaction(result));
+                    }
+                });
+            }
+        });
+    });
 }
 
 /**
@@ -61,21 +258,97 @@ exports.initializePollFromTemplate = function(path) {
  * @throws exception if the poll ID is not unique
  * @throws exception if poll initialization message could not be attached to the tangle
  */
-exports.initializePoll = function(poll_id, destination_account, vote_definitions, start_time, end_time, voter_identifiers, poll_operators) {
-  console.log('Beginning initializePoll function.')
+exports.initializePoll = function(destination_account, vote_definitions,
+                                  start_time, end_time, voter_identifiers,
+                                  poll_operators) {
+
+    const poll_data = {
+        "poll_address" : "",
+        "destination_account" : destination_account,
+        "vote_definition" : vote_definition,
+        "start_time" : start_time,
+        "end_time" : end_time,
+        "voter_identifiers" : voter_identifiers,
+        "poll_operators" : poll_operators
+    };
+
+    return new Promise((resolve, reject) => {
+
+        iota.api.getNewAddress(SEED, (error, new_addr) => {
+
+            if (error) {
+                console.error("Failed to generate new address poll init");
+                reject(error);
+                
+            } else {
+
+                poll_data.poll_address = new_addr;
+                const tryteData = iota.utils.toTrytes(JSON.stringify(poll_data));
+                const transfer = [
+                            {
+                                value : 0,
+                                address :  new_addr,
+                                message : tryteData
+                            }
+                ];
+
+                iota.api.sendTransfer(SEED, 1, 14, transfer, (error, result) => {
+
+                    if (error) {
+
+                        console.error("Failed to publish vote template to tangle")
+                        reject(error);
+
+                    } else {
+
+                        console.log("New poll successfully published: ", result);
+                        resolve(parseTransaction(result));
+                    }
+                });
+            }
+        });
+    });
 }
 
 /**
  * Query the ledger to ensure that there currently exists no poll in the tangle
- * with the passed in poll ID
+ * with the passed in poll ID. All  polls save their poll_id as a transaction tag.
+ * At the moment, the iota tag seems to be the only user defined field that
+ * can be queried. If some other transaction on the iota network contains the same
+ * then we should assume the poll is run by Facist Nazis and not trust it.
  *
  * @throws exception if connection to query tangle could not be established
  *
  * @returns true if unique, false if not
  */
-exports.ensureUniquePollId = function(poll_id) {
-  console.log('Beginning ensureUniquePollId function.')
+function ensureUniquePollId(poll_id) {
+
+    /* Pretty sure this is no longer needed. */
+
+    if (!poll_id) {
+        return Promise.reject(new Error("Cannot query tangle for null poll_id"));
+    }
+
+    return new Promise((resolve, reject) => {
+        iota.api.findTransactionObjects(
+            {
+                tags : [iota.utils.toTrytes(poll_id)]
+            },
+            (err, result) => {
+                if (err) {
+                    console.error(`Failed to query tangle with poll_id: ${poll_id}\n`,
+                                  err);
+                    reject(err);
+                } else if (result.length === 0) {
+                    resolve(true);
+                } else {
+                    resolve(false);
+                }
+            }
+        );
+    });
 }
+exports.ensureUniquePollId = ensureUniquePollId;
 
 /**
  * Get a list of the VoteDefinition objects part of this poll. When the polling station
@@ -87,8 +360,45 @@ exports.ensureUniquePollId = function(poll_id) {
  * 
  * @returns the VoteDefinition objects for this poll
  */
-exports.getVoteDefinitions = function() {
-  console.log('Beginning getVoteDefinitions function.')
+exports.getVoteDefinitions = function(addr) {
+
+    if (!addr) {
+        return Promise.reject(
+            new Error("Cannot get voter definitions with null address"));
+    }
+
+    return new Promise((resolve, reject) => {
+
+        iota.api.findTransactionObjects(
+            {
+                addresses : [addr]
+            },
+            (err, result) => {
+
+                if (err) {
+                    
+                    console.error("Failed to obtain voter defns with addr: ",
+                                  addr);
+                    reject(err);
+
+                } else if (result.length === 0) {
+
+                    reject(new Error("No voter defns are returned with addr: ",
+                                     addr));
+                    
+                } else {
+
+                    const response = parseTransactions(result);
+                    defn = "";
+                    for (var resp of response) {
+                        if (resp.voter_definitions != undefined) {
+                            defn = resp.voter_definitions
+                        }
+                    }
+                    resolve(defn);
+                }
+            });
+    });
 }
 
 
@@ -102,21 +412,83 @@ exports.getVoteDefinitions = function() {
  *
  * @throws exception if message could not be attached to tangle
  */
-exports.placeVote = function() {
-  console.log('Beginning placeVote function.')
+exports.placeVote = function(addr, voter_id, voter_responses, pub_key) {
+
+    var data = {
+        id : crypto.createHash("sha256").update(voter_id).digest("hex"),
+        responses : voter_responses
+    };
+
+    const tryteData = iota.utils.toTrytes(encrypt(JSON.stringify(data), pub_key));
+    const transfer = [
+        {
+            value : 0,
+            address :  addr,
+            message : tryteData
+        }
+    ];
+
+    console.log("Data: ", data);
+    console.log("Transfer: ", transfer[0]);
+    
+    return new Promise((resolve, reject) => {
+
+        iota.api.sendTransfer(SEED, 1, 14, transfer, (error, result) => {
+
+            if (error) {
+                console.error("Failed to submit individual vote to the tangle");
+                reject(error);
+            } else {
+                console.log("Vote Successfully Placed");
+                resolve(result)
+            }
+        });
+    });
 }
 
 
 /**
- * Retrieve the ITOA destination account ID to which to send the message
- * containing the voting data
+ * Retrieve the IOTA destination account ID to which to send the message
+ * containing the voting data. Since iota usese a 
  *
  * @returns the account ID of IOTA account to which to send the voting data
  */
  
-exports.getDestinationAccount = function() {
-  console.log('Beginning getDestinationAccount function.')
+exports.getDestinationAccount = function(addr) {
+
+    if (!addr) {
+        return Promise.reject(
+            new Error("Cannot get voter definitions with null addr"));
+    }
+
+    return new Promise((resolve, reject) => {
+
+        iota.api.findTransactionObjects(
+            {
+                addresses : [addr]
+            },
+            (err, result) => {
+
+                if (err) {
+                    
+                    console.error("Failed to obtain voter definitions from poll_id: ", poll_id);
+                    reject(err);
+
+                } else if (result.length === 0) {
+
+                    reject(new Error("No values returned from definitions"));
+
+                } else {
+
+                    const response = parseTransactions(result);
+                    defn = "";
+                    for (var resp of response) {
+                        if (resp.destination_account != undefined) {
+                            defn = resp.destination_account
+                        }
+                    }
+                    resolve(defn);
+                }              
+            });
+    });
 }
-
-
-

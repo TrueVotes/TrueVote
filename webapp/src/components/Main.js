@@ -1,9 +1,10 @@
-import React, {Component} from 'react'
+import React from 'react'
 import { BrowserRouter, Switch, Route } from 'react-router-dom'
 import Home from './Home'
 import Landing from './Landing'
 import NewPoll from './NewPoll'
 import Vote from './Vote'
+import VoteCountDashboard from './VoteCountDashboard'
 
 // The Main component renders one of the three provided
 // Routes (provided that one matches). Both the /roster
@@ -18,6 +19,7 @@ const Main = () => (
 	      <Route path='/landing' component={Landing}/>
 	      <Route path='/newpoll' component={NewPoll}/>
 	      <Route path='/vote' component={Vote}/>
+	      <Route path='/votecountdashboard' component={VoteCountDashboard}/>
 	    </Switch>
     </BrowserRouter>
   </main>

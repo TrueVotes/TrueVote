@@ -4,7 +4,7 @@ import {Form, Radio, Grid, Card, Icon, Image, Dropdown } from 'semantic-ui-react
 class NewPoll extends Component {
 
 	state = {}
-  handleChange = (e, { value }) => this.setState({ value })
+	handleChange = (e, { value }) => this.setState({ value })
 
   render() {
   	return (

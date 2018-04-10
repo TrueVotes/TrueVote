@@ -64,15 +64,17 @@ In the future, we would like to support identify verification through an API to 
 * ##### vote placement data
 
       {     
-            "poll_id": STRING,
-            "timestamp": DATETIME,
-            "vote_responses": ENCRYPTED({
-                  title_0: [response_ids],
-                  title_1: [response_ids],
-                  ...
-                  title_n: [response_ids]
-            }),
-            "unique_user_identifier": HASH
+            ENCRYPTED(
+                  "poll_id": STRING,
+                  "timestamp": DATETIME,
+                  "vote_responses": {
+                        title_0: [response_ids],
+                        title_1: [response_ids],
+                        ...
+                        title_n: [response_ids]
+                  }),
+                  "unique_user_identifier": HASH
+            )
       }
 
 Term explanations:
