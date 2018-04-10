@@ -37,6 +37,10 @@ function decrypt(payload, priv_key) {
     return cryptico.decrypt(payload, priv_key);
 }
 
+exports.decryptTransaction = function(data, priv_key) {
+    return cryptico.decrypt(data, priv_key);
+}
+
 function parseAndDecryptQuery(iota_response, priv_key) {
     contents = [];
     for (var resp of iota_response) {

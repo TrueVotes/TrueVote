@@ -58,9 +58,15 @@ engine.queryAndDecryptTangle("AGVVRXSWLWSRWRRJGYYRGEZPJDPVUFPWXIHQQRHSHXNPIAHTNQ
 
 
 
+// engine.queryTangle("AGVVRXSWLWSRWRRJGYYRGEZPJDPVUFPWXIHQQRHSHXNPIAHTNQBAANMDQLXKYOJEWWOPPKWZPAJG9DWE9", priv_key)
+//     .then((trans) => console.log("Can query by address AGVVRXSWLWSRWRRJGYYRGEZPJDPVUFPWXIHQQRHSHXNPIAHTNQBAANMDQLXKYOJEWWOPPKWZPAJG9DWE9:\n", trans))
+//     .catch((err) => console.log("queryTangle failed: ", err));
 
 
-// // The passphrase used to repeatably generate this RSA key.
+
+
+
+// The passphrase used to repeatably generate this RSA key.
 // var PassPhrase = "The Moon is a Harsh Mistress."; 
 
 // // The length of the RSA key, in bits.
@@ -68,7 +74,7 @@ engine.queryAndDecryptTangle("AGVVRXSWLWSRWRRJGYYRGEZPJDPVUFPWXIHQQRHSHXNPIAHTNQ
 
 // var MattsRSAkey = cryptico.generateRSAKey(PassPhrase, Bits);
 
-// // console.log("private key:", MattsRSAkey);
+// console.log("private key:", MattsRSAkey);
 
 
 // var MattsPublicKeyString = cryptico.publicKeyString(MattsRSAkey);
