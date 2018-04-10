@@ -11,9 +11,7 @@ Referendum, where the region of Catalan was trying to vote to secede
 from the Spanish union. 
 
 ## Caveats
-Snapshots occur every few months and prune the entire network. Because of this, data is not persistent and elections must occur entirely within a snapshot period.
-
-At the end of the voting period, poll administrator private seeds are publicized (so any vote published after this point are invalid) and now anyone can download the full list of transactions/votes published by each voting station.
+At the end of the voting period, poll administrator private seeds are publicized (so any vote published after this point are invalid) and now anyone can verify the full list of transactions/votes entered by each voting station.
 
 We are using a light node, using the public servers at http://iotasupport.com/lightwallet.shtml
 We suggest setting up a full node for reliability if this is to be used by any large organization, but we cannot set one up as we do not plan on maintaining it 24/7
