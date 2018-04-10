@@ -15,7 +15,7 @@ const Home = () => (
 			    <div class="content">
 			    	<h2 class="ui purple image header">
 		          <div class="content">
-		            Enter Old Poll
+		            Existing Poll
 		          </div>
 		        </h2>
 			      <div class="ui large form">
@@ -47,7 +47,7 @@ const Home = () => (
 						    </div>
 						  </div>
 	            <div class="field">
-			      		<Link to='/landing'><button class="ui button">Enter</button></Link>
+			      		<Link to='/vote'><button class="ui button">Enter</button></Link>
 			      	</div>
 			      </div>
 			    </div>
