@@ -37,6 +37,10 @@ function decrypt(payload, priv_key) {
     return cryptico.decrypt(payload, priv_key);
 }
 
+exports.decryptTransaction = function(data, priv_key) {
+    return cryptico.decrypt(data, priv_key);
+}
+
 function parseAndDecryptQuery(iota_response, priv_key) {
     contents = [];
     for (var resp of iota_response) {
@@ -197,45 +201,49 @@ exports.queryAndDecryptTangle = function(addr, priv_key) {
     });
 }
 
+
+function generateIotaAddrs(num_addrs) {
+
+    return new Promise((resolve, reject) => {
+        iota.api.getNewAddress(SEED, {total : num_addrs}, (error, new_addrs) => {
+            if (error) {
+                console.error("Failed to generate a new address");
+                reject(error);
+            } else {
+                resolve(new_addrs);
+            }
+        });
+    });
+}
+exports.generateAddresses = generateIotaAddrs;
+
 exports.initializePollFromTemplate = function(path) {
 
     const template = JSON.parse(fs.readFileSync(path));
     return new Promise((resolve, reject) => {
 
-        iota.api.getNewAddress(SEED, (error, new_addr) => {
+        generateIotaAddrs(2).then((addr_arr) => {
 
-            if (error) {
+            template.poll_address = addr_arr[0];
+            const tryteData = iota.utils.toTrytes(JSON.stringify(template));
+            const transfer = [
+                {
+                    value : 0,
+                    address :  addr_arr[1],
+                    message : tryteData
+                }
+            ];
 
-                console.error("Failed to genrate new address during poll init");
-                reject(error);
-
-            } else {
-
-                template.poll_address = new_addr;
-                const tryteData = iota.utils.toTrytes(JSON.stringify(template));
-                const transfer = [
-                            {
-                                value : 0,
-                                address :  new_addr,
-                                message : tryteData
-                            }
-                ];
-
-                iota.api.sendTransfer(SEED, 1, 14, transfer, (error, result) => {
-
-                    if (error) {
-
-                        console.error("Failed to publish vote template to tangle")
-                        reject(error);
-
-                    } else {
-
-                        console.log("New poll successfully published: ", result);
+            iota.api.sendTransfer(SEED, 1, 14, transfer, (error, result) => {
+                if (error) {
+                    console.error("Failed to publish vote template to tangle")
+                    reject(error);
+                } else {
+                    console.log("New poll successfully published: ", result);
                         resolve(parseTransaction(result));
-                    }
-                });
-            }
-        });
+                }
+            });
+        }).catch((err) => reject(err));
     });
 }
 
@@ -486,5 +494,44 @@ exports.getDestinationAccount = function(addr) {
                     resolve(defn);
                 }              
             });
+    });
+}
+
+exports.countVotes = function(addr, priv_key) {
+    if (!addr) {
+        return Promise.reject(
+            new Error("Cannot get voter definitions with null addr"));
+    }
+
+    return new Promise((resolve, reject) => {
+
+        module.exports.getVoteDefinitions(addr)
+        .then((defns) => {
+
+            ledger = []
+            console.log("Got vote defns");
+            for (def of defns) {
+                for (option of def.responses) {
+                    def[option] = 0;
+                }
+            }
+            // console.log(defns);
+            module.exports.queryAndDecryptTangle(addr, priv_key)
+            .then((results) => {
+                // I have to check for duplicates and stuff, make a set of IDs
+                console.log("Successfully queried tangle");
+                for (transaction of results) {
+                    if (transaction.voter_definitions == undefined) {
+                        for (vote of transaction.responses) {
+                            console.log(vote);
+                        }
+                    }
+                }
+            }).catch((err) => {
+                reject("queryAndDecryptTangle failed:", err)
+            });
+        }).catch((err) => {
+            reject("getVoteDefinitions failed:", err)
+        });
     });
 }
