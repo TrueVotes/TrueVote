@@ -1,10 +1,10 @@
 import React, {Component} from 'react';
 import {Form, Radio, Grid, Card, Icon, Image, Dropdown } from 'semantic-ui-react'
 
-class NewPoll extends Component {
+class Vote extends Component {
 
 	state = {}
-	handleChange = (e, { value }) => this.setState({ value })
+  handleChange = (e, { value }) => this.setState({ value })
 
   render() {
   	return (
@@ -20,7 +20,7 @@ class NewPoll extends Component {
 		      <div class="column">
 		        <h2 class="ui purple image header">
 		          <div class="content">
-		            New Poll
+		            Vote
 		          </div>
 		        </h2>
 		        <form class="ui large form">
@@ -69,7 +69,7 @@ class NewPoll extends Component {
 		                />
 		              </Form.Field>
 		            </div>
-		            <div class="ui fluid large purple submit button">Login</div>
+		            <div class="ui fluid large purple submit button">Submit</div>
 		          </div>
 
 		          <div class="ui error message"></div>
@@ -89,5 +89,5 @@ class NewPoll extends Component {
 	}
 }
 
-export default NewPoll;
+export default Vote;
 

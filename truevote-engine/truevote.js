@@ -37,6 +37,10 @@ function decrypt(payload, priv_key) {
     return cryptico.decrypt(payload, priv_key);
 }
 
+exports.decryptTransaction = function(data, priv_key) {
+    return cryptico.decrypt(data, priv_key);
+}
+
 function parseAndDecryptQuery(iota_response, priv_key) {
     contents = [];
     for (var resp of iota_response) {
@@ -490,5 +494,44 @@ exports.getDestinationAccount = function(addr) {
                     resolve(defn);
                 }              
             });
+    });
+}
+
+exports.countVotes = function(addr, priv_key) {
+    if (!addr) {
+        return Promise.reject(
+            new Error("Cannot get voter definitions with null addr"));
+    }
+
+    return new Promise((resolve, reject) => {
+
+        module.exports.getVoteDefinitions(addr)
+        .then((defns) => {
+
+            ledger = []
+            console.log("Got vote defns");
+            for (def of defns) {
+                for (option of def.responses) {
+                    def[option] = 0;
+                }
+            }
+            // console.log(defns);
+            module.exports.queryAndDecryptTangle(addr, priv_key)
+            .then((results) => {
+                // I have to check for duplicates and stuff, make a set of IDs
+                console.log("Successfully queried tangle");
+                for (transaction of results) {
+                    if (transaction.voter_definitions == undefined) {
+                        for (vote of transaction.responses) {
+                            console.log(vote);
+                        }
+                    }
+                }
+            }).catch((err) => {
+                reject("queryAndDecryptTangle failed:", err)
+            });
+        }).catch((err) => {
+            reject("getVoteDefinitions failed:", err)
+        });
     });
 }

@@ -1,5 +1,6 @@
 import React, {Component} from 'react'
 import {Button, Form, Radio, Grid, Card, Icon, Image, Dropdown } from 'semantic-ui-react'
+import './VoteCountDashboard.css';
 
 
 class VoteCountDashboard extends Component {
@@ -8,6 +9,29 @@ class VoteCountDashboard extends Component {
   handleChange = (e, { value }) => this.setState({ value })
 
   render() {
+
+  	var responses = {
+  		'president': {
+  			'candidate A': 13,
+  			'candidate B': 5,
+  			'candidate C': 24,
+  			'candidate D': 7
+  		},
+  		'vice-president': {
+  			'candidate E': 38,
+  			'candidate F': 21
+  		}
+  	};
+
+		var ResponseDisplay = () =>
+		  <div>{
+		    Object.entries(responses).map( ([key, value]) => 
+		    	<p><h3>{key}</h3> {
+		    		Object.entries(value).map( ([innerkey, innervalue]) =>
+		    			<p>{innerkey}: {innervalue}</p> )
+		    	}<br></br></p> )
+		  }</div>
+
   	return (
 			  <div class="ui three column grid">
 
@@ -29,6 +53,14 @@ class VoteCountDashboard extends Component {
 			        </h2>
 		        </div>
 	        </div>
+
+		      {/*list*/}
+		      <div class="row">
+		      	<div class="column"></div>
+		      	<div class="column">
+		      	<ResponseDisplay />
+		        </div>
+		      </div>
         </div>
    	)
 	}
