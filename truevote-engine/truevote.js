@@ -504,30 +504,55 @@ exports.countVotes = function(addr, priv_key) {
         module.exports.getVoteDefinitions(addr)
         .then((defns) => {
 
-            ledger = []
+            /* ledger = [
+                "[Title]" : {
+                    "[Response1]" : #votes,
+                    "[Response2]" : #votes,
+                    "[Response3]" : #votes
+                },
+                ...
+            ] */
+
+            ledger = {}
             console.log("Got vote defns");
             for (def of defns) {
-                for (option of def.responses) {
-                    def[option] = 0;
+                var responses = {};
+                for (option in def.responses) {
+                    responses[option] = 0;
                 }
+                ledger[def.title] = responses;
             }
-            // console.log(defns);
+            // console.log(ledger);
             module.exports.queryAndDecryptTangle(addr, priv_key)
             .then((results) => {
                 // I have to check for duplicates and stuff, make a set of IDs
-                console.log("Successfully queried tangle");
+                // Enforce min and max votes
+                console.log("Successfully queried tangle\n");
                 for (transaction of results) {
-                    if (transaction.voter_definitions == undefined) {
-                        for (vote of transaction.responses) {
-                            console.log(vote);
+                    if (transaction.responses != undefined) { // only look at vote transactions
+                        for (single_vote of transaction.responses) {
+                            // console.log(single_vote);
+                            title = Object.keys(single_vote)[0];
+                            val = single_vote[title];
+                            // console.log("title:", title);
+                            // console.log("val:", val);
+                            // console.log("ledger.President:", ledger[title]);
+                            if (ledger[title][val] == undefined) {
+                                ledger[title][val] = "hi";
+                            }
+                            ledger[title][val] = ledger[title][val] + 1;
                         }
                     }
                 }
+                // console.log("\n", ledger);
+                resolve(ledger);
             }).catch((err) => {
-                reject("queryAndDecryptTangle failed:", err)
+                // err_msg = "queryAndDecryptTangle failed:", err;
+                reject(err);
             });
         }).catch((err) => {
-            reject("getVoteDefinitions failed:", err)
+            // err_msg = "getVoteDefinitions failed:", err;
+            reject(err);
         });
     });
 }

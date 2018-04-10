@@ -49,7 +49,10 @@ address1 = 'HVJ9LPMLQONZNZDO9PEK9ZL9EIOZAEMPKYBPLKRTNDHDMSOOJKEZHWDQOFHHPFGQURDP
 
 engine.countVotes(address1, priv_key)
     .then((results) => console.log("Obtained poll results:\n", results))
-    .catch((err) => console.log("countVotes failed: ", err));
+    .catch((err) => {
+        // err_msg = "countVotes failed:" + err;
+        console.log(err);
+    });
 
 // engine.getVoteDefinitions(address1)
 //     .then((defns) => console.log("Can get vote defns: ", defns))
