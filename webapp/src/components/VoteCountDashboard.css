@@ -1,0 +1,29 @@
+html, body {
+	background-color: #140c3f;
+	color: #ffffff;
+}
+
+h3 {
+	color: #808080;
+}
+
+.bump_down {
+	margin-top:50px;
+}
+
+.spacer {
+	height:100px;
+}
+
+.cplacing {
+	margin-top: 40px;
+}
+
+.page {
+  padding: 40px;
+   
+}
+
+.choice {
+	padding:5px;
+}
