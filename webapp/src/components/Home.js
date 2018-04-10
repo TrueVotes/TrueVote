@@ -20,9 +20,6 @@ const Home = () => (
 			    <div class="content">
 			    	<h2 class="ui purple image header">
 		          <div class="content">
-<<<<<<< HEAD
-		            Existing Poll
-=======
 		            Create New Poll
 		          </div>
 		        </h2>
@@ -42,7 +39,6 @@ const Home = () => (
 			    	<h2 class="ui purple image header">
 		          <div class="content">
 		            Set Up Polling Station
->>>>>>> origin/master
 		          </div>
 		        </h2>
 			      <div class="ui large form">
