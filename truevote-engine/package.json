@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/TrueVote/TrueVote#readme",
   "dependencies": {
+    "cryptico": "^1.0.2",
     "iota.lib.js": "^0.4.7"
   }
 }

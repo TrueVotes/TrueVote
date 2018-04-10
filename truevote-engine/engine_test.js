@@ -10,30 +10,29 @@ var pub_key = cryptico.publicKeyString(priv_key);
 // GXKXDJRTBQGHLZDGPMQPAGGRVABIAJTQTRSSL9GUDYRJROMJYCFRQXCOQFBIXCTNACABCCBTJRYAWROQD
 // AGVVRXSWLWSRWRRJGYYRGEZPJDPVUFPWXIHQQRHSHXNPIAHTNQBAANMDQLXKYOJEWWOPPKWZPAJG9DWE9
 
-// engine.node_info_test();
+engine.node_info_test();
+engine.initializePollFromTemplate("./demo.json")
+    .then((res) => {
 
-// engine.initializePollFromTemplate("./demo.json")
-//     .then((res) => {
+        console.log("Init Poll Result = ", res);
 
-//         console.log("Raw Result = ", res);
+        // engine.queryTangle(res.address)
+        //     .then((trans) => console.log("Can query by address: " + res + ":\n" + trans))
+        //     .catch((err) => console.log("queryTangle failed: ", err));
 
-//         engine.queryTangle(res.address)
-//             .then((trans) => console.log("Can query by address: " + res + ":\n" + trans))
-//             .catch((err) => console.log("queryTangle failed: ", err));
+        // engine.getVoteDefinitions(res.address)
+        //     .then((defns) => console.log("Can get vote defns: ", defns))
+        //     .catch((err) => console.log("voteDefns failed: ", err));
 
-//         engine.getVoteDefinitions(res.address)
-//             .then((defns) => console.log("Can get vote defns: ", defns))
-//             .catch((err) => console.log("voteDefns failed: ", err));
+        // engine.getDestinationAccount(res.address)
+        //     .then((account) => console.log("Can get destination account: ", account))
+        //     .catch((err) => console.log("destAccount failed: ", err));
 
-//         engine.getDestinationAccount(res.address)
-//             .then((account) => console.log("Can get destination account: ", account))
-//             .catch((err) => console.log("destAccount failed: ", err));
-
-//         engine.placeVote(res.address, "SSN-1001", {president : "george"}, pub_key)
-//             .then((vote) => console.log("Vote successfully placed: ", vote))
-//             .catch((err) => console.log("plaveVote failed: ", err));
+        engine.placeVote(res.payload.poll_address, "SSN-1001", {president : "george"}, pub_key)
+            .then((vote) => console.log("Vote successfully placed: ", vote))
+            .catch((err) => console.log("plaveVote failed: ", err));
         
-//     }).catch((err) => console.error(err));
+    }).catch((err) => console.error(err));
 
 
 
@@ -52,9 +51,9 @@ var pub_key = cryptico.publicKeyString(priv_key);
 //     .then((account) => console.log("Can get destination account: ", account))
 //     .catch((err) => console.log("destAccount failed: ", err));
 
-engine.queryAndDecryptTangle("AGVVRXSWLWSRWRRJGYYRGEZPJDPVUFPWXIHQQRHSHXNPIAHTNQBAANMDQLXKYOJEWWOPPKWZPAJG9DWE9", priv_key)
-    .then((trans) => console.log("Can query by address AGVVRXSWLWSRWRRJGYYRGEZPJDPVUFPWXIHQQRHSHXNPIAHTNQBAANMDQLXKYOJEWWOPPKWZPAJG9DWE9:\n", trans))
-    .catch((err) => console.log("queryTangle failed: ", err));
+// engine.queryAndDecryptTangle("AGVVRXSWLWSRWRRJGYYRGEZPJDPVUFPWXIHQQRHSHXNPIAHTNQBAANMDQLXKYOJEWWOPPKWZPAJG9DWE9", priv_key)
+//     .then((trans) => console.log("Can query by address AGVVRXSWLWSRWRRJGYYRGEZPJDPVUFPWXIHQQRHSHXNPIAHTNQBAANMDQLXKYOJEWWOPPKWZPAJG9DWE9:\n", trans))
+//     .catch((err) => console.log("queryTangle failed: ", err));
 
 
 
@@ -86,8 +85,3 @@ engine.queryAndDecryptTangle("AGVVRXSWLWSRWRRJGYYRGEZPJDPVUFPWXIHQQRHSHXNPIAHTNQ
 // // MattsRSAkey = cryptico.generateRSAKey(PassPhrase, Bits);
 // var DecryptionResult = cryptico.decrypt(CipherText, MattsRSAkey);
 // console.log("\nDecrypted Message:\n" + DecryptionResult.plaintext);
-
-
-
-
-

@@ -197,45 +197,49 @@ exports.queryAndDecryptTangle = function(addr, priv_key) {
     });
 }
 
+
+function generateIotaAddrs(num_addrs) {
+
+    return new Promise((resolve, reject) => {
+        iota.api.getNewAddress(SEED, {total : num_addrs}, (error, new_addrs) => {
+            if (error) {
+                console.error("Failed to generate a new address");
+                reject(error);
+            } else {
+                resolve(new_addrs);
+            }
+        });
+    });
+}
+exports.generateAddresses = generateIotaAddrs;
+
 exports.initializePollFromTemplate = function(path) {
 
     const template = JSON.parse(fs.readFileSync(path));
     return new Promise((resolve, reject) => {
 
-        iota.api.getNewAddress(SEED, (error, new_addr) => {
+        generateIotaAddrs(2).then((addr_arr) => {
 
-            if (error) {
+            template.poll_address = addr_arr[0];
+            const tryteData = iota.utils.toTrytes(JSON.stringify(template));
+            const transfer = [
+                {
+                    value : 0,
+                    address :  addr_arr[1],
+                    message : tryteData
+                }
+            ];
 
-                console.error("Failed to genrate new address during poll init");
-                reject(error);
-
-            } else {
-
-                template.poll_address = new_addr;
-                const tryteData = iota.utils.toTrytes(JSON.stringify(template));
-                const transfer = [
-                            {
-                                value : 0,
-                                address :  new_addr,
-                                message : tryteData
-                            }
-                ];
-
-                iota.api.sendTransfer(SEED, 1, 14, transfer, (error, result) => {
-
-                    if (error) {
-
-                        console.error("Failed to publish vote template to tangle")
-                        reject(error);
-
-                    } else {
-
-                        console.log("New poll successfully published: ", result);
+            iota.api.sendTransfer(SEED, 1, 14, transfer, (error, result) => {
+                if (error) {
+                    console.error("Failed to publish vote template to tangle")
+                    reject(error);
+                } else {
+                    console.log("New poll successfully published: ", result);
                         resolve(parseTransaction(result));
-                    }
-                });
-            }
-        });
+                }
+            });
+        }).catch((err) => reject(err));
     });
 }
 
