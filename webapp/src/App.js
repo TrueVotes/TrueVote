@@ -3,9 +3,8 @@ import { Switch, Route } from 'react-router-dom';
 import logo from './logo.svg';
 import './App.css';
 import 'semantic-ui-css/semantic.min.css';
-
+import { connect } from 'react-redux';
 import Main from './components/Main'
-
 import {Form, Radio, Grid, Card, Icon, Image, Dropdown } from 'semantic-ui-react'
 
 
