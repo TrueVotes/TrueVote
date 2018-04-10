@@ -492,3 +492,42 @@ exports.getDestinationAccount = function(addr) {
             });
     });
 }
+
+exports.countVotes = function(addr, priv_key) {
+    if (!addr) {
+        return Promise.reject(
+            new Error("Cannot get voter definitions with null addr"));
+    }
+
+    return new Promise((resolve, reject) => {
+
+        module.exports.getVoteDefinitions(addr)
+        .then((defns) => {
+
+            ledger = []
+            console.log("Got vote defns");
+            for (def of defns) {
+                for (option of def.responses) {
+                    def[option] = 0;
+                }
+            }
+            // console.log(defns);
+            module.exports.queryAndDecryptTangle(addr, priv_key)
+            .then((results) => {
+                // I have to check for duplicates and stuff, make a set of IDs
+                console.log("Successfully queried tangle");
+                for (transaction of results) {
+                    if (transaction.voter_definitions == undefined) {
+                        for (vote of transaction.responses) {
+                            console.log(vote);
+                        }
+                    }
+                }
+            }).catch((err) => {
+                reject("queryAndDecryptTangle failed:", err)
+            });
+        }).catch((err) => {
+            reject("getVoteDefinitions failed:", err)
+        });
+    });
+}

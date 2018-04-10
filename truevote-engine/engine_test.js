@@ -8,7 +8,8 @@ var pub_key = cryptico.publicKeyString(priv_key);
 
 // workable addresses:
 // GXKXDJRTBQGHLZDGPMQPAGGRVABIAJTQTRSSL9GUDYRJROMJYCFRQXCOQFBIXCTNACABCCBTJRYAWROQD
-// AGVVRXSWLWSRWRRJGYYRGEZPJDPVUFPWXIHQQRHSHXNPIAHTNQBAANMDQLXKYOJEWWOPPKWZPAJG9DWE9
+// address1 = "AGVVRXSWLWSRWRRJGYYRGEZPJDPVUFPWXIHQQRHSHXNPIAHTNQBAANMDQLXKYOJEWWOPPKWZPAJG9DWE9";
+address1 = 'HVJ9LPMLQONZNZDO9PEK9ZL9EIOZAEMPKYBPLKRTNDHDMSOOJKEZHWDQOFHHPFGQURDPHFUBMVBKIFWNW';
 
 // engine.node_info_test();
 
@@ -29,7 +30,7 @@ var pub_key = cryptico.publicKeyString(priv_key);
 //             .then((account) => console.log("Can get destination account: ", account))
 //             .catch((err) => console.log("destAccount failed: ", err));
 
-//         engine.placeVote(res.address, "SSN-1001", {president : "george"}, pub_key)
+//         engine.placeVote(res.address, "SSN-1001", [{President : "Bush"}, {Car : "Tesla"}, {Car : "Camry"}], pub_key)
 //             .then((vote) => console.log("Vote successfully placed: ", vote))
 //             .catch((err) => console.log("plaveVote failed: ", err));
         
@@ -37,28 +38,34 @@ var pub_key = cryptico.publicKeyString(priv_key);
 
 
 
-// engine.placeVote("AGVVRXSWLWSRWRRJGYYRGEZPJDPVUFPWXIHQQRHSHXNPIAHTNQBAANMDQLXKYOJEWWOPPKWZPAJG9DWE9", "SSN-1002", {president : "drumpf"}, pub_key)
+// engine.placeVote(address1, "SSN-1002", {president : "drumpf"}, pub_key)
 //     .then((vote) => console.log("Vote successfully placed: ", vote))
 //     .catch((err) => console.log("plaveVote failed: ", err));
 
 
+// engine.placeVote(address1, "SSN-1001", [{President : "Clinton"}, {Car : "Tesla"}], pub_key)
+//     .then((vote) => console.log("Vote successfully placed: ", vote))
+//     .catch((err) => console.log("plaveVote failed: ", err));
 
+engine.countVotes(address1, priv_key)
+    .then((results) => console.log("Obtained poll results:\n", results))
+    .catch((err) => console.log("countVotes failed: ", err));
 
-// engine.getVoteDefinitions("AGVVRXSWLWSRWRRJGYYRGEZPJDPVUFPWXIHQQRHSHXNPIAHTNQBAANMDQLXKYOJEWWOPPKWZPAJG9DWE9")
+// engine.getVoteDefinitions(address1)
 //     .then((defns) => console.log("Can get vote defns: ", defns))
 //     .catch((err) => console.log("voteDefns failed: ", err));
 
-// engine.getDestinationAccount("AGVVRXSWLWSRWRRJGYYRGEZPJDPVUFPWXIHQQRHSHXNPIAHTNQBAANMDQLXKYOJEWWOPPKWZPAJG9DWE9")
+// engine.getDestinationAccount(address1)
 //     .then((account) => console.log("Can get destination account: ", account))
 //     .catch((err) => console.log("destAccount failed: ", err));
 
-engine.queryAndDecryptTangle("AGVVRXSWLWSRWRRJGYYRGEZPJDPVUFPWXIHQQRHSHXNPIAHTNQBAANMDQLXKYOJEWWOPPKWZPAJG9DWE9", priv_key)
-    .then((trans) => console.log("Can query by address AGVVRXSWLWSRWRRJGYYRGEZPJDPVUFPWXIHQQRHSHXNPIAHTNQBAANMDQLXKYOJEWWOPPKWZPAJG9DWE9:\n", trans))
-    .catch((err) => console.log("queryTangle failed: ", err));
+// engine.queryAndDecryptTangle(address1, priv_key)
+//     .then((trans) => console.log("Can query by address AGVVRXSWLWSRWRRJGYYRGEZPJDPVUFPWXIHQQRHSHXNPIAHTNQBAANMDQLXKYOJEWWOPPKWZPAJG9DWE9:\n", trans))
+//     .catch((err) => console.log("queryTangle failed: ", err));
 
 
 
-// engine.queryTangle("AGVVRXSWLWSRWRRJGYYRGEZPJDPVUFPWXIHQQRHSHXNPIAHTNQBAANMDQLXKYOJEWWOPPKWZPAJG9DWE9", priv_key)
+// engine.queryTangle(address1, priv_key)
 //     .then((trans) => console.log("Can query by address AGVVRXSWLWSRWRRJGYYRGEZPJDPVUFPWXIHQQRHSHXNPIAHTNQBAANMDQLXKYOJEWWOPPKWZPAJG9DWE9:\n", trans))
 //     .catch((err) => console.log("queryTangle failed: ", err));
 
