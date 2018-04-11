@@ -78,13 +78,15 @@
           </v-card>
         </v-flex>
         <v-flex style="margin:10px;">
+          <v-card>
+            <v-card-title>
+              <v-flex class="text-xs-center" style="margin-top:0px;">
+                <h2> Create Poll </h2>
+              </v-flex>
+            </v-card-title>
+          </v-card>
           <form>
-            <v-card style="min-width: 350px;">
-              <v-card-title>
-                <v-flex class="text-xs-center" style="margin-top:0px;">
-                  <h2> Create Poll </h2>
-                </v-flex>
-              </v-card-title>
+            <v-card style="min-width: 350px;margin-top:10px;">
               <v-card-text>
                 <v-layout column>
                 <v-flex>

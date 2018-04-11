@@ -4,7 +4,8 @@ import Router from 'vue-router'
 const routerOptions = [
   { path: '/', component: 'LandingPage' },
   { path: '/create', component: 'CreatePoll'},
-  { path: '/count', component: 'Count'}
+  { path: '/count', component: 'Count'},
+  { path: '/vote', component: 'Vote'}
 ]
 
 const routes = routerOptions.map(route => {

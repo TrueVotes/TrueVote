@@ -67,9 +67,15 @@
         right: true,
         rightDrawer: false,
         title: 'Vuetify.js',
-        iota_wallet_seed: null,
-        poll_key: null
+        main_store: {
+          iota_wallet_seed: null,
+          poll_key: null,
+          private_key: null
+        }
       }
+    },
+    methods: {
+
     },
     name: 'App',
     mounted() {

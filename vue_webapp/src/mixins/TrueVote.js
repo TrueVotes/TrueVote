@@ -177,6 +177,78 @@ export default {
               }
           });
       });
+    },
+    getVoteDefinitions(addr, ret_promise) {
+      if (!addr) {
+          return Promise.reject(
+              new Error("Cannot get voter definitions with null address"));
+      }
+
+      return new Promise((resolve, reject) => {
+
+        iota.api.findTransactionObjects(
+          {
+              addresses : [addr]
+          },
+          (err, result) => {
+
+            if (err) {
+                
+                console.error("Failed to obtain voter defns with addr: ",
+                              addr);
+                reject(err);
+
+            } else if (result.length === 0) {
+
+                reject(new Error("No voter defns are returned with addr: ",
+                                 addr));
+                
+            } else {
+
+                const response = parseTransactions(result);
+                defn = "";
+                for (var resp of response) {
+                    if (resp.voter_definitions != undefined) {
+                        defn = resp.voter_definitions
+                    }
+                }
+                resolve(defn);
+            }
+        });
+      });
+    },
+    placeVote(addr, voter_id, voter_responses, pub_key) {
+
+      var data = {
+          id : crypto.createHash("sha256").update(voter_id).digest("hex"),
+          responses : voter_responses
+      };
+
+      const tryteData = iota.utils.toTrytes(encrypt(JSON.stringify(data), pub_key));
+      const transfer = [
+        {
+            value : 0,
+            address :  addr,
+            message : tryteData
+        }
+      ];
+
+      console.log("Data: ", data);
+      console.log("Transfer: ", transfer[0]);
+      
+      return new Promise((resolve, reject) => {
+
+        iota.api.sendTransfer(SEED, 1, 14, transfer, (error, result) => {
+
+          if (error) {
+              console.error("Failed to submit individual vote to the tangle");
+              reject(error);
+          } else {
+              console.log("Vote Successfully Placed");
+              resolve(result)
+          }
+        });
+      });
     }
   }
 }

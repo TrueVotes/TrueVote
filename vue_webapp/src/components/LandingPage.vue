@@ -81,11 +81,11 @@
                   <p> Member does not exist </p>
                 </v-flex>
                 <v-flex class="text-xs-center">
-                  <v-btn v-on:click="go_vote" color="purple"
+                  <v-btn v-on:click="go_vote"  color="purple"
                   flat
                   outline
                   >
-                    Enter
+                    Vote
                   </v-btn>
                 </v-flex>
               </v-layout>
@@ -140,17 +140,18 @@
     mixins: [TrueVote],
     data() {
       return {
-        iota_wallet_seed: null,
+        iota_wallet_seed: '',
         poll_key: '',
-        private_key: null
+        private_key: ''
       }
     },
     methods: {
       go_vote() {
-
+        router.push('/vote?wallet_seed='+this.iota_wallet_seed
+          +'&poll_key='+this.poll_key)
       },
       count_votes() {
-
+        router.push('/count?private_key='+this.private_key)
       },
       on_test() {
         this.node_info_test()
