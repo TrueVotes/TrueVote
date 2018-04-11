@@ -11,14 +11,14 @@ import {Form, Radio, Grid, Card, Icon, Image, Dropdown } from 'semantic-ui-react
 class App extends Component {
   render() {
     return (
-    <div class="App">
-      <div class="ui attached stackable menu">
-        <div class="ui container">
-          <a class="item">
-            <i class="home icon"></i> Vote
+    <div className="App">
+      <div className="ui attached stackable menu">
+        <div className="ui container">
+          <a className="item">
+            <i className="home icon"></i> Vote
           </a>
-          <a class="item">
-            <i class="grid layout icon"></i> Start Poll
+          <a className="item">
+            <i className="grid layout icon"></i> Start Poll
           </a>
         </div>
       </div>
