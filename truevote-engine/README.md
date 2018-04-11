@@ -186,6 +186,12 @@ Note that to encrypt the vote responses, a key will have been distributed to the
        * locally from setting up the polling station, and can be retrieved by calling the function
        * below.
        *
+       * Example input: placeVote(res.address, "SSN-1001", [{President : "Bush"}, {Car : "Tesla"}, {Car : "Camry"}], pub_key)
+       *
+       * @param address
+       * @param voter_id
+       * @param responses
+       * @param pub_key
        * @throws exception if message could not be attached to tangle
        */
        
@@ -242,6 +248,15 @@ Note that to encrypt the vote responses, a key will have been distributed to the
 * ##### function countVotes():
       /**
        * Retrieves tangle vote results and creates a ledger with tallies of every vote
+       *
+       * Returned ledger format:  ledger = [
+       *                              "President" : {
+       *                                  "Bush" : 10,
+       *                                  "Reagan" : 54,
+       *                                  "Clinton" : 0
+       *                              },
+       *                              ...
+       *                          ]
        *
        * @param addr - destination address of poll
        * @param priv_key - private RSA key needed for decryption of voter data
