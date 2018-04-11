@@ -131,10 +131,11 @@ Note that to encrypt the vote responses, a key will have been distributed to the
        * function parses the template and calls the initializePoll() function below.
        *
        * @param {string} path - the relative path to the filled in template
+       * @param {int} iota_addr_ind - each unique poll MUST have a unique iota address generation index
        * @return {object} Promise - Promise object which returns info about transaction
        */
 
-* ##### function initializePoll(poll_id, destination_account, vote_definitions, start_time, end_time, voter_identifiers, poll_operators):
+* ##### function initializePoll(poll_id, destination_account, vote_definitions, start_time, end_time, voter_identifiers, poll_operators, iota_addr_ind):
       /**
        * Will initialize a poll by ensuring poll metadata is valid (by calling the      
        * ensureUniquePollID() function below) and attaching the message to the tangle.
@@ -146,6 +147,7 @@ Note that to encrypt the vote responses, a key will have been distributed to the
        * @param {Date} end_time - the end date & time for poll to close
        * @param {string[]} voter_identifiers - list of identifiers to hash for the user
        * @param {int[]} poll_operators - list of account IDs for poll operators
+       * @param {int} iota_addr_ind - each unique poll MUST have a unique iota address generation index
        *
        * @throws exception if the poll ID is not unique
        * @throws exception if poll initialization message could not be attached to the tangle
