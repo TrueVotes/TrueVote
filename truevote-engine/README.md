@@ -123,20 +123,14 @@ Note that to encrypt the vote responses, a key will have been distributed to the
 }
 
 ### IOTA Interactions
-
-* ##### function attachToTangle():
-      /**
-       * Will attach a new transfer to the tangle.
-       *
-       * @param {string} destination_account - destination account ID
-       * @param {string} message - message to attach to transfer with the data
-       */
        
 * ##### function queryTangle():
       /**
-       * Will query the tangle
-       * 
-       * TODO: figure out parameters!!!
+       * Will query the tangle based on the provided address assoicated with a
+       * place vote transaction.
+       *
+       * @param {string} addr - the address of the transaction/individual vote
+       * @return {object} Promise - Promise object which returns a list of transactions 
        */
 
 ### Poll Initialization
@@ -229,6 +223,17 @@ Note that to encrypt the vote responses, a key will have been distributed to the
        * @param {string} msg - msg to be decrypted
        * @param {string} priv_key - private key used for decryption
        * @return {object} the decrypted message
+       */
+       
+* ##### function decryptionTransaction():
+      /**
+       * Will query the tangle based on the provided address assoicated with a
+       * place vote transaction. It will also decrypt the results if provided the private key
+       *
+       * @param {string} addr - the address of the transaction/individual vote
+       * @param {string} priv_key - the private key needed for decrytion
+       * @return {object} Promise - Promise object which returns a list of transactions
+       * all of which are decrypted if they were encrypted
        */
        
 ## Challenges
