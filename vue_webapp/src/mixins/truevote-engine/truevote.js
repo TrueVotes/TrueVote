@@ -307,7 +307,7 @@ exports.initializePoll = function(destination_account, vote_definitions,
     const poll_data = {
         "poll_address" : "",
         "destination_account" : destination_account,
-        "vote_definition" : vote_definitions,
+        "vote_definition" : vote_definition,
         "start_time" : start_time,
         "end_time" : end_time,
         "voter_identifiers" : voter_identifiers,

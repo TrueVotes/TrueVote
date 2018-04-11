@@ -1,29 +1,54 @@
 <template>
   <v-container fluid>
     <v-layout row wrap>
-      <v-flex style="margin:10px;">
-        <v-card style="background-color:#ffffff;opacity:0.9;">
-          <form @submit.prevent=""  @success="">
-            <v-card-title>
-              <v-flex class="text-xs-center" style="margin-top:0px;">
-                <h2> Create Poll </h2>
-              </v-flex>
-            </v-card-title>
-            <v-card-text>
-              <v-layout column>
-                <v-flex class="text-xs-center">
-                  <v-btn to="/create" color="purple"
-                  flat
-                  outline
-                  >
-                    Create
-                  </v-btn>
+      <v-layout column>
+        <v-flex style="margin:10px;">
+          <v-card style="background-color:#ffffff;opacity:0.9;">
+            <form @submit.prevent=""  @success="">
+              <v-card-title>
+                <v-flex class="text-xs-center" style="margin-top:0px;">
+                  <h2> Create Poll </h2>
                 </v-flex>
-              </v-layout>
-            </v-card-text>
-          </form>
-        </v-card>
-      </v-flex>
+              </v-card-title>
+              <v-card-text>
+                <v-layout column>
+                  <v-flex class="text-xs-center">
+                    <v-btn to="/create" color="purple"
+                    flat
+                    outline
+                    >
+                      Create
+                    </v-btn>
+                  </v-flex>
+                </v-layout>
+              </v-card-text>
+            </form>
+          </v-card>
+        </v-flex>
+        <v-flex style="margin:10px;">
+          <v-card style="background-color:#ffffff;opacity:0.9;">
+            <form @submit.prevent=""  @success="">
+              <v-card-title>
+                <v-flex class="text-xs-center" style="margin-top:0px;">
+                  <h2> Test Node </h2>
+                </v-flex>
+              </v-card-title>
+              <v-card-text>
+                <v-layout column>
+                  <v-flex class="text-xs-center">
+                    <v-btn v-on:click="node_info_test" color="purple"
+                    flat
+                    outline
+                    >
+                      Test
+                    </v-btn>
+                  </v-flex>
+                </v-layout>
+              </v-card-text>
+            </form>
+          </v-card>
+        </v-flex>
+      </v-layout>
       <v-flex style="margin:10px;">
         <v-card style="background-color:#ffffff;opacity:0.9">
           <form @submit.prevent=""  @success="">
@@ -56,11 +81,11 @@
                   <p> Member does not exist </p>
                 </v-flex>
                 <v-flex class="text-xs-center">
-                  <v-btn v-on:click="userLogin"  color="purple"
+                  <v-btn v-on:click="go_vote" color="purple"
                   flat
                   outline
                   >
-                    Login
+                    Enter
                   </v-btn>
                 </v-flex>
               </v-layout>
@@ -91,7 +116,7 @@
                   <p> Member does not exist </p>
                 </v-flex>
                 <v-flex class="text-xs-center">
-                  <v-btn v-on:click="userLogin"  color="purple"
+                  <v-btn v-on:click="count_votes"  color="purple"
                   flat
                   outline
                   >
@@ -109,13 +134,26 @@
 
 <script>
   import router from '@/router'
+  import TrueVote from '../mixins/TrueVote.js'
 
   export default {
+    mixins: [TrueVote],
     data() {
       return {
         iota_wallet_seed: null,
         poll_key: '',
         private_key: null
+      }
+    },
+    methods: {
+      go_vote() {
+
+      },
+      count_votes() {
+
+      },
+      on_test() {
+        this.node_info_test()
       }
     }
   }

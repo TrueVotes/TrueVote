@@ -1,0 +1,32 @@
+{
+    "poll_address" : "<update_required>",
+    "destination_account" : "pizza_the_hut",
+    "voter_definitions" : [
+    	{
+    		"title": "President",
+			"responses": {
+			    "Bush": 0,
+			    "Reagan": 1,
+			    "Clinton": 2
+			},
+			"min_num_responses": 1,
+			"max_num_responses": 1
+        },
+    	{
+    		"title": "Car",
+			"responses": {
+			    "Tesla": 0,
+			    "Jaguar": 1,
+			    "Volvo": 2,
+			    "Camry": 3
+			},
+			"min_num_responses": 0,
+			"max_num_responses": 2
+        }
+
+    ],
+    "start_time" : "sometime",
+    "end_time" : "maybe earlier",
+    "voter_identifiers" : "SSN",
+    "poll_operators" : "an array of pollers"
+}

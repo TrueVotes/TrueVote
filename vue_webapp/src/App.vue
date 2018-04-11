@@ -32,10 +32,22 @@
 </template>
 
 <script>
-  require('../../../)
 
+  import TrueVote from './mixins/TrueVote.js'
+  import Vue from 'vue';
+  import Vuetify from 'vuetify'
+
+  Vue.use(Vuetify, {
+    theme: {
+      primary: '#9A30AE',
+      secondary: '#b0bec5',
+      accent: '#8c9eff',
+      error: '#b71c1c'
+    }
+  })
 
   export default {
+    mixins: [TrueVote],
     data () {
       return {
         snackbar: false,
@@ -54,12 +66,14 @@
         miniVariant: false,
         right: true,
         rightDrawer: false,
-        title: 'Vuetify.js'
+        title: 'Vuetify.js',
+        iota_wallet_seed: null,
+        poll_key: null
       }
     },
     name: 'App',
-    onMount() {
-
+    mounted() {
+      console.log('mounted....')
     }
   }
 </script>

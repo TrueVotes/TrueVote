@@ -12,6 +12,7 @@
           </v-card>
           <v-flex
           v-for="(vote_def, index) in vote_definitions"
+          :key="index"
           >
             <v-card style="margin-top:10px;">
               <v-card-title>
@@ -35,6 +36,7 @@
               <v-card-text>
                 <v-layout 
                 v-for="(response, response_index) in vote_def['responses']"
+                :key="response_index"
                 row>
                   <v-text-field
                     name="vote_def_title"
@@ -139,7 +141,7 @@
             <v-card style="margin-top:10px;">
               <v-card-text>
                 <v-flex class="text-xs-center">
-                  <v-btn v-on:click="userLogin"  color="purple"
+                  <v-btn v-on:click="create_poll" color="purple"
                   flat
                   outline
                   >
@@ -156,7 +158,10 @@
 </template>
 
 <script>
+  import TrueVote from '../mixins/TrueVote.js'
+
   export default {
+    mixins: [TrueVote],
     data () {
       return {
         poll_id: null,
@@ -165,8 +170,15 @@
         start_time: null,
         end_time: null,
         vote_definitions: [
-        {title:'Title Guy', responses: ['Reagan', 'Bush']}
-        ]
+        {title:'Edit Title', responses: ['Edit Response']}
+        ],
+        voter_identifiers: [
+          "SSN", "Driver ID", "First Name", "Last Name"
+        ],
+        poll_operators: [
+          ["Bob", "Jenna", "Jim"]
+        ],
+        iota_addr_ind: 20
       }
     },
     methods: {
@@ -184,6 +196,24 @@
       },
       delete_definition(index) {
         this.vote_definitions.splice(index, 1)
+      },
+      create_poll(){
+        this.initializePoll(this.dest_account, this.vote_definitions,
+                        this.start_time, this.end_time, this.voter_identifiers,
+                        this.poll_operators, this.iota_addr_ind,
+                        (error, result) => {
+            if (error) {
+
+                console.error("Failed to publish vote template to tangle")
+                reject(error);
+
+            } else {
+
+                console.log("New poll successfully published: ", result);
+                //resolve(self.parseTransaction(result));
+                alert('Poll successfully published!')
+            }
+        });
       }
     }
   }

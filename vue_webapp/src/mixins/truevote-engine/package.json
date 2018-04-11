@@ -1,0 +1,23 @@
+{
+  "name": "truevote-engine",
+  "version": "1.0.0",
+  "description": "This is a package to interact with truevote polls.",
+  "main": "truevote.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TrueVote/TrueVote.git"
+  },
+  "author": "Sam Crane",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/TrueVote/TrueVote/issues"
+  },
+  "homepage": "https://github.com/TrueVote/TrueVote#readme",
+  "dependencies": {
+    "cryptico": "^1.0.2",
+    "iota.lib.js": "^0.4.7"
+  }
+}
