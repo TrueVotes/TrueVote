@@ -8,7 +8,8 @@ const cryptico = require('cryptico');
  * to get things going. ;)
  */
 const FULL_NODE_ADDR = "https://field.carriota.com:443";
-const SEED = "OLXCLVSZONEYGZHWRQYGWYLCECRNVREEJVCPEWVOYCKYGFLXPERVWRDM9W9GYWMJUJRWCVSXLRLFSNTRX";
+// const SEED = "OLXCLVSZONEYGZHWRQYGWYLCECRNVREEJVCPEWVOYCKYGFLXPERVWRDM9W9GYWMJUJRWCVSXLRLFSNTRX";
+const SEED = "PTDOUAJJKHR9PUKHJVUNBWXEHPRA9YSLBQEFRJSAFPUM9ILJPJVSDGMKQZLAFZUAVIKZHKGEMCFUEEORE";
 
 const iota = new IOTA({
     provider: FULL_NODE_ADDR
@@ -29,16 +30,49 @@ exports.node_info_test = function() {
     });
 }
 
-function encrypt(payload, pub_key) {
-    return cryptico.encrypt(payload, pub_key).cipher;
+/**
+ * Helper function to encrypt any message using a public key and returns the 
+ * encrypted message
+ * 
+ * @param {string} msg - msg to be encrypted
+ * @param {string} pub_key - public key used for encryption
+ * @return {object} the encrypted message
+ */
+function encrypt(msg, pub_key) {
+    return cryptico.encrypt(msg, pub_key).cipher;
 }
 
-function decrypt(payload, priv_key) {
-    return cryptico.decrypt(payload, priv_key);
+/**
+ * Helper function to decrypt any encrypted message
+ * 
+ * @param {string} msg - msg to be decrypted
+ * @param {string} priv_key - private key used for decryption
+ * @return {object} the decrypted message
+ */
+function decrypt(msg, priv_key) {
+    return cryptico.decrypt(msg, priv_key);
 }
 
+/**
+ * Public function to decrypt any encrypted message
+ * 
+ * @param {string} msg - msg to be decrypted
+ * @param {string} priv_key - private key used for decryption
+ * @return {object} the decrypted message
+ */
 exports.decryptTransaction = function(data, priv_key) {
     return cryptico.decrypt(data, priv_key);
+}
+
+/**
+ * Public function to encrypt any message
+ * 
+ * @param {string} msg - msg to be encrypted
+ * @param {string} pub_key - public key used for encryption
+ * @return {object} the encrypted message
+ */
+exports.encryptTransaction = function(data, priv_key) {
+    return cryptico.encrypt(msg, pub_key).cipher;
 }
 
 function parseAndDecryptQuery(iota_response, priv_key) {
@@ -66,7 +100,7 @@ function parseAndDecryptQuery(iota_response, priv_key) {
  * 
  * @param {string} iota_payload - payload in signatureMessageFragment of an iota
  *                                response
- * @retrun {object} the json object representation saved on the iota tangle
+ * @return {object} the json object representation saved on the iota tangle
  */
 function parseTrytePayload(iota_payload) {
     
@@ -83,7 +117,7 @@ function parseTrytePayload(iota_payload) {
  *
  * @param {array} iota_reponse - raw data response from the iota tangle after submitting
  *                               a transaction
- * @retrun {object} contents - client friendly array of payload messages
+ * @return {object} contents - client friendly array of payload messages
  */
 
 function parseTransactions(iota_response) {
@@ -105,7 +139,7 @@ function parseTransactions(iota_response) {
  *
  * @param {array} iota_reponse - raw data response from the iota tangle after submitting
  *                               a transaction
- * @retrun {object} msg - client friendly objest containing useful meta data
+ * @return {object} msg - client friendly objest containing useful meta data
  */
 
 function parseTransaction(iota_response) {
@@ -125,26 +159,11 @@ function parseTransaction(iota_response) {
 }
 
 /**
- * Will attach a new transfer to the tangle.
- *
- * @param {string} destination_account - destination account ID
- * @param {string} message - message to attach to transfer with the data
- */
-exports.attachToTangle = function(destination_account, message) {
-
-    /* Not entirely sure if this function is necessary because getTransfer()
-     * automatically attaches to the tangle when initializing poll or
-     * placing votes.
-     */
-    console.log('Beginning attachToTangle function.');
-}
-
-/**
  * Will query the tangle based on the provided address assoicated with a
  * place vote transaction.
  *
  * @param {string} addr - the address of the transaction/individual vote
- * TODO: figure out parameters!!!
+ * @return {object} Promise - Promise object which returns a list of transactions 
  */
 exports.queryTangle = function(addr) {
 
@@ -175,7 +194,9 @@ exports.queryTangle = function(addr) {
  * place vote transaction. It will also decrypt the results if provided the private key
  *
  * @param {string} addr - the address of the transaction/individual vote
- * TODO: figure out parameters!!!
+ * @param {string} priv_key - the private key needed for decrytion
+ * @return {object} Promise - Promise object which returns a list of transactions
+ * all of which are decrypted if they were encrypted
  */
 exports.queryAndDecryptTangle = function(addr, priv_key) {
 
@@ -202,14 +223,15 @@ exports.queryAndDecryptTangle = function(addr, priv_key) {
 }
 
 
-function generateIotaAddrs(num_addrs) {
+function generateIotaAddrs(ind) {
 
     return new Promise((resolve, reject) => {
-        iota.api.getNewAddress(SEED, {total : num_addrs}, (error, new_addrs) => {
+        iota.api.getNewAddress(SEED, {index : ind}, (error, new_addrs) => {
             if (error) {
                 console.error("Failed to generate a new address");
                 reject(error);
             } else {
+                console.log(new_addrs);
                 resolve(new_addrs);
             }
         });
@@ -217,19 +239,31 @@ function generateIotaAddrs(num_addrs) {
 }
 exports.generateAddresses = generateIotaAddrs;
 
-exports.initializePollFromTemplate = function(path) {
+/**
+* Will initialize poll based on the data entered into a template JSON file
+* of the poll initialization metadata described in the section above. This
+* function parses the template and calls the initializePoll() function below.
+*
+* @param {string} path - the relative path to the filled in template
+* @param {int} iota_addr_ind - each unique poll MUST have a unique iota address generation index
+* @return {object} Promise - Promise object which returns info about transaction
+*/
+exports.initializePollFromTemplate = function(path, iota_addr_ind) {
 
     const template = JSON.parse(fs.readFileSync(path));
     return new Promise((resolve, reject) => {
 
-        generateIotaAddrs(2).then((addr_arr) => {
+        generateIotaAddrs(iota_addr_ind).then((addr_arr) => {
 
-            template.poll_address = addr_arr[0];
+            template.poll_address = addr_arr;
+            console.log("\n------------------------\n");
+            console.log(template);
+            console.log("\n------------------------\n");
             const tryteData = iota.utils.toTrytes(JSON.stringify(template));
             const transfer = [
                 {
                     value : 0,
-                    address :  addr_arr[1],
+                    address :  addr_arr,
                     message : tryteData
                 }
             ];
@@ -258,13 +292,16 @@ exports.initializePollFromTemplate = function(path) {
  * @param {Date} end_time - the end date & time for poll to close
  * @param {string[]} voter_identifiers - list of identifiers to hash for the user
  * @param {int[]} poll_operators - list of account IDs for poll operators
- *
+ * @param {int} iota_addr_ind - each unique poll MUST have a unique iota address generation index
+*
  * @throws exception if the poll ID is not unique
  * @throws exception if poll initialization message could not be attached to the tangle
+ *
+ * @return {object} Promise - Promise object which returns info about transaction
  */
 exports.initializePoll = function(destination_account, vote_definitions,
                                   start_time, end_time, voter_identifiers,
-                                  poll_operators) {
+                                  poll_operators, iota_addr_ind) {
 
     const poll_data = {
         "poll_address" : "",
@@ -362,7 +399,7 @@ exports.ensureUniquePollId = ensureUniquePollId;
  * valiation to ensure the number of votes is accurate and saving the vote locally until
  * all votes have a response (or no response if the min_num_responses is set to zero).
  * 
- * @returns the VoteDefinition objects for this poll
+ * @returns promise which returns a list of vote definitions
  */
 exports.getVoteDefinitions = function(addr) {
 
@@ -413,6 +450,13 @@ exports.getVoteDefinitions = function(addr) {
  * that the data required to attach it to the tangle (e.g. destination account ID) is saved
  * locally from setting up the polling station, and can be retrieved by calling the function
  * below.
+ *
+ * Example input: placeVote(res.address, "SSN-1001", [{President : "Bush"}, {Car : "Tesla"}, {Car : "Camry"}], pub_key)
+ *
+ * @param address
+ * @param voter_id
+ * @param responses
+ * @param pub_key
  *
  * @throws exception if message could not be attached to tangle
  */
@@ -497,6 +541,22 @@ exports.getDestinationAccount = function(addr) {
     });
 }
 
+/**
+ * Retrieves tangle vote results and creates a ledger with tallies of every vote
+ *
+ * Returned ledger format:  ledger = [
+ *                              "President" : {
+ *                                  "Bush" : 10,
+ *                                  "Reagan" : 54,
+ *                                  "Clinton" : 0
+ *                              },
+ *                              ...
+ *                          ]
+ *
+ * @param addr - destination address of poll
+ * @param priv_key - private RSA key needed for decryption of voter data
+ * @returns the account ID of IOTA account to which to send the voting data
+ */
 exports.countVotes = function(addr, priv_key) {
     if (!addr) {
         return Promise.reject(
@@ -507,15 +567,6 @@ exports.countVotes = function(addr, priv_key) {
 
         module.exports.getVoteDefinitions(addr)
         .then((defns) => {
-
-            /* ledger = [
-                "[Title]" : {
-                    "[Response1]" : #votes,
-                    "[Response2]" : #votes,
-                    "[Response3]" : #votes
-                },
-                ...
-            ] */
 
             ledger = {}
             console.log("Got vote defns");
@@ -529,22 +580,19 @@ exports.countVotes = function(addr, priv_key) {
             // console.log(ledger);
             module.exports.queryAndDecryptTangle(addr, priv_key)
             .then((results) => {
-                // I have to check for duplicates and stuff, make a set of IDs
-                // Enforce min and max votes
+                // TODO: I have to check for duplicates and stuff, make a set of IDs
+                // TODO: Enforce min and max votes
                 console.log("Successfully queried tangle\n");
                 for (transaction of results) {
-                    if (transaction.responses != undefined) { // only look at vote transactions
+                    if (transaction.responses != undefined && Array.isArray(transaction.responses)) { // only look at vote transactions
                         for (single_vote of transaction.responses) {
-                            // console.log(single_vote);
                             title = Object.keys(single_vote)[0];
-                            val = single_vote[title];
-                            // console.log("title:", title);
-                            // console.log("val:", val);
-                            // console.log("ledger.President:", ledger[title]);
-                            if (ledger[title][val] == undefined) {
-                                ledger[title][val] = "hi";
+                            if (ledger[title] != undefined) {
+                                val = single_vote[title];
+                                if (ledger[title][val] != undefined) {
+                                    ledger[title][val] = ledger[title][val] + 1;
+                                }
                             }
-                            ledger[title][val] = ledger[title][val] + 1;
                         }
                     }
                 }
