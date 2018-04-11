@@ -16,44 +16,44 @@ var pub_key = cryptico.publicKeyString(priv_key);
 // address1 = "ZEHBSE9QEI9PD9LMHHDDCMHGUYZXPQTJVOLRHCLUADQNTKGAHOIZUOLQAPMFWSYTKXYGVCVUJTQPSYZOC";
 address1 = "DFCPLYXEEKIJXWPUDSKGBOOKVKHJS9UB9HNMXDSUL9JUSBDECUKFYZVMJDWB9DGVKCY9XQENIEQL9IRWD";
 
-// engine.node_info_test();
-// engine.initializePollFromTemplate("./demo.json", 5)
-//     .then((res) => {
+engine.node_info_test();
+engine.initializePollFromTemplate("./demo.json", 1)
+    .then((res) => {
 
-//         console.log("Init Poll Result = ", res);
+        console.log("Init Poll Result = ", res);
 
-//         engine.queryTangle(res.address)
-//             .then((trans) => console.log("Can query by address: " + res + ":\n" + trans))
-//             .catch((err) => console.log("queryTangle failed: ", err));
+        engine.queryTangle(res.address)
+            .then((trans) => console.log("Can query by address: " + res + ":\n" + trans))
+            .catch((err) => console.log("queryTangle failed: ", err));
 
-//         engine.getVoteDefinitions(res.address)
-//             .then((defns) => console.log("Can get vote defns: ", defns))
-//             .catch((err) => console.log("voteDefns failed: ", err));
+        engine.getVoteDefinitions(res.address)
+            .then((defns) => console.log("Can get vote defns: ", defns))
+            .catch((err) => console.log("voteDefns failed: ", err));
 
-//         // console.log(res.address);
-//         // console.log(res.payload.poll_address);
+        // console.log(res.address);
+        // console.log(res.payload.poll_address);
 
-//         engine.getDestinationAccount(res.address)
-//             .then((account) => console.log("Can get destination account: ", account))
-//             .catch((err) => console.log("destAccount failed: ", err));
+        engine.getDestinationAccount(res.address)
+            .then((account) => console.log("Can get destination account: ", account))
+            .catch((err) => console.log("destAccount failed: ", err));
 
-//         // engine.placeVote(res.address, "SSN-1001", {President : "George"}, pub_key)
-//         //     .then((vote) => console.log("Vote successfully placed: ", vote))
-//         //     .catch((err) => console.log("plaveVote failed: ", err));
+        // engine.placeVote(res.address, "SSN-1001", {President : "George"}, pub_key)
+        //     .then((vote) => console.log("Vote successfully placed: ", vote))
+        //     .catch((err) => console.log("plaveVote failed: ", err));
 
-//         // engine.placeVote(res.address, "SSN-1002", {dog : "golden"}, pub_key)
-//         //     .then((vote) => console.log("Vote successfully placed: ", vote))
-//         //     .catch((err) => console.log("plaveVote failed: ", err));
+        // engine.placeVote(res.address, "SSN-1002", {dog : "golden"}, pub_key)
+        //     .then((vote) => console.log("Vote successfully placed: ", vote))
+        //     .catch((err) => console.log("plaveVote failed: ", err));
 
-//         // engine.placeVote(res.address, "SSN-1003", {President : "Reagan"}, pub_key)
-//         //     .then((vote) => console.log("Vote successfully placed: ", vote))
-//         //     .catch((err) => console.log("plaveVote failed: ", err));
+        // engine.placeVote(res.address, "SSN-1003", {President : "Reagan"}, pub_key)
+        //     .then((vote) => console.log("Vote successfully placed: ", vote))
+        //     .catch((err) => console.log("plaveVote failed: ", err));
 
-//         engine.placeVote(res.address, "SSN-1004", [{President : "Clinton"}, {Car : "Tesla"}], pub_key)
-//             .then((vote) => console.log("Vote successfully placed: ", vote))
-//             .catch((err) => console.log("plaveVote failed: ", err));
+        engine.placeVote(res.address, "SSN-1004", [{President : "Clinton"}, {Car : "Tesla"}], pub_key)
+            .then((vote) => console.log("Vote successfully placed: ", vote))
+            .catch((err) => console.log("plaveVote failed: ", err));
         
-//     }).catch((err) => console.error(err));
+    }).catch((err) => console.error(err));
 
 
 
@@ -82,12 +82,12 @@ address1 = "DFCPLYXEEKIJXWPUDSKGBOOKVKHJS9UB9HNMXDSUL9JUSBDECUKFYZVMJDWB9DGVKCY9
 
 
 
-engine.countVotes(address1, priv_key)
-    .then((results) => console.log("Obtained poll results:\n", results))
-    .catch((err) => {
-        // err_msg = "countVotes failed:" + err;
-        console.log(err);
-    });
+// engine.countVotes(address1, priv_key)
+//     .then((results) => console.log("Obtained poll results:\n", results))
+//     .catch((err) => {
+//         // err_msg = "countVotes failed:" + err;
+//         console.log(err);
+//     });
 
 
 // engine.getVoteDefinitions(address1)
