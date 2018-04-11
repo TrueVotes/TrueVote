@@ -122,23 +122,6 @@ Note that to encrypt the vote responses, a key will have been distributed to the
       getMaxNumResponses() {}
 }
 
-### IOTA Interactions
-
-* ##### function attachToTangle():
-      /**
-       * Will attach a new transfer to the tangle.
-       *
-       * @param {string} destination_account - destination account ID
-       * @param {string} message - message to attach to transfer with the data
-       */
-       
-* ##### function queryTangle():
-      /**
-       * Will query the tangle
-       * 
-       * TODO: figure out parameters!!!
-       */
-
 ### Poll Initialization
 
 * ##### function initializePollFromTemplate(path):
@@ -148,9 +131,11 @@ Note that to encrypt the vote responses, a key will have been distributed to the
        * function parses the template and calls the initializePoll() function below.
        *
        * @param {string} path - the relative path to the filled in template
+       * @param {int} iota_addr_ind - each unique poll MUST have a unique iota address generation index
+       * @return {object} Promise - Promise object which returns info about transaction
        */
 
-* ##### function initializePoll(poll_id, destination_account, vote_definitions, start_time, end_time, voter_identifiers, poll_operators):
+* ##### function initializePoll(poll_id, destination_account, vote_definitions, start_time, end_time, voter_identifiers, poll_operators, iota_addr_ind):
       /**
        * Will initialize a poll by ensuring poll metadata is valid (by calling the      
        * ensureUniquePollID() function below) and attaching the message to the tangle.
@@ -162,9 +147,12 @@ Note that to encrypt the vote responses, a key will have been distributed to the
        * @param {Date} end_time - the end date & time for poll to close
        * @param {string[]} voter_identifiers - list of identifiers to hash for the user
        * @param {int[]} poll_operators - list of account IDs for poll operators
+       * @param {int} iota_addr_ind - each unique poll MUST have a unique iota address generation index
        *
        * @throws exception if the poll ID is not unique
        * @throws exception if poll initialization message could not be attached to the tangle
+       *
+       * @return {object} Promise - Promise object which returns info about transaction
        */
 
 * ##### function ensureUniquePollId(poll_id):
@@ -188,7 +176,7 @@ Note that to encrypt the vote responses, a key will have been distributed to the
        * valiation to ensure the number of votes is accurate and saving the vote locally until
        * all votes have a response (or no response if the min_num_responses is set to zero).
        * 
-       * @returns the VoteDefinition objects for this poll
+       * @returns promise which returns a list of vote definitions
        */
        
 * ##### function placeVote():
@@ -200,6 +188,12 @@ Note that to encrypt the vote responses, a key will have been distributed to the
        * locally from setting up the polling station, and can be retrieved by calling the function
        * below.
        *
+       * Example input: placeVote(res.address, "SSN-1001", [{President : "Bush"}, {Car : "Tesla"}, {Car : "Camry"}], pub_key)
+       *
+       * @param address
+       * @param voter_id
+       * @param responses
+       * @param pub_key
        * @throws exception if message could not be attached to tangle
        */
        
@@ -208,6 +202,66 @@ Note that to encrypt the vote responses, a key will have been distributed to the
        * Retrieve the ITOA destination account ID to which to send the message
        * containing the voting data
        *
+       * @returns the account ID of IOTA account to which to send the voting data
+       */
+
+### Encryption / Decryption
+
+* ##### function encryptTransaction():
+      /**
+       * Public function to encrypt any message
+       * 
+       * @param {string} msg - msg to be encrypted
+       * @param {string} pub_key - public key used for encryption
+       * @return {object} the encrypted message
+       */
+       
+* ##### function decryptTransaction():
+      /**
+       * Public function to decrypt any encrypted message
+       * 
+       * @param {string} msg - msg to be decrypted
+       * @param {string} priv_key - private key used for decryption
+       * @return {object} the decrypted message
+       */
+
+### Retrieving Results
+
+* ##### function queryTangle():
+      /**
+       * Will query the tangle based on the provided address assoicated with a
+       * place vote transaction.
+       *
+       * @param {string} addr - the address of the transaction/individual vote
+       * @return {object} Promise - Promise object which returns a list of transactions 
+       */
+       
+* ##### function queryAndDecryptTangle():
+      /**
+       * Will query the tangle based on the provided address assoicated with a
+       * place vote transaction. It will also decrypt the results if provided the private key
+       *
+       * @param {string} addr - the address of the transaction/individual vote
+       * @param {string} priv_key - the private key needed for decrytion
+       * @return {object} Promise - Promise object which returns a list of transactions
+       * all of which are decrypted if they were encrypted
+       */
+       
+* ##### function countVotes():
+      /**
+       * Retrieves tangle vote results and creates a ledger with tallies of every vote
+       *
+       * Returned ledger format:  ledger = [
+       *                              "President" : {
+       *                                  "Bush" : 10,
+       *                                  "Reagan" : 54,
+       *                                  "Clinton" : 0
+       *                              },
+       *                              ...
+       *                          ]
+       *
+       * @param addr - destination address of poll
+       * @param priv_key - private RSA key needed for decryption of voter data
        * @returns the account ID of IOTA account to which to send the voting data
        */
        
