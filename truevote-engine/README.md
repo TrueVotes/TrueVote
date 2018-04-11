@@ -210,6 +210,26 @@ Note that to encrypt the vote responses, a key will have been distributed to the
        *
        * @returns the account ID of IOTA account to which to send the voting data
        */
+
+### Encryption / Decryption
+
+* ##### function encryptTransaction():
+      /**
+       * Public function to encrypt any message
+       * 
+       * @param {string} msg - msg to be encrypted
+       * @param {string} pub_key - public key used for encryption
+       * @return {object} the encrypted message
+       */
+       
+* ##### function decryptTransaction():
+      /**
+       * Public function to decrypt any encrypted message
+       * 
+       * @param {string} msg - msg to be decrypted
+       * @param {string} priv_key - private key used for decryption
+       * @return {object} the decrypted message
+       */
        
 ## Challenges
 
