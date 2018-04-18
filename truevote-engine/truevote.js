@@ -232,7 +232,6 @@ function generateIotaAddrs(ind) {
                 console.error("Failed to generate a new address");
                 reject(error);
             } else {
-                console.log(new_addrs);
                 resolve(new_addrs);
             }
         });
@@ -257,9 +256,9 @@ exports.initializePollFromTemplate = function(path, iota_addr_ind) {
         generateIotaAddrs(iota_addr_ind).then((addr_arr) => {
 
             template.poll_address = addr_arr;
-            console.log("\n------------------------\n");
-            console.log(template);
-            console.log("\n------------------------\n");
+            // console.log("\n------------------------\n");
+            // console.log(template);
+            // console.log("\n------------------------\n");
             const tryteData = iota.utils.toTrytes(JSON.stringify(template));
             const transfer = [
                 {
@@ -477,8 +476,8 @@ exports.placeVote = function(addr, voter_id, voter_responses, pub_key) {
         }
     ];
 
-    console.log("Data: ", data);
-    console.log("Transfer: ", transfer[0]);
+    // console.log("Data: ", data);
+    // console.log("Transfer: ", transfer[0]);
     
     return new Promise((resolve, reject) => {
 
@@ -488,7 +487,6 @@ exports.placeVote = function(addr, voter_id, voter_responses, pub_key) {
                 console.error("Failed to submit individual vote to the tangle");
                 reject(error);
             } else {
-                console.log("Vote Successfully Placed");
                 resolve(result)
             }
         });
@@ -570,7 +568,6 @@ exports.countVotes = function(addr, priv_key) {
         .then((defns) => {
 
             ledger = {}
-            console.log("Got vote defns");
             for (def of defns) {
                 var responses = {};
                 for (option in def.responses) {
@@ -578,33 +575,24 @@ exports.countVotes = function(addr, priv_key) {
                 }
                 ledger[def.title] = responses;
             }
-            // console.log(ledger);
+
             module.exports.queryAndDecryptTangle(addr, priv_key)
             .then((results) => {
                 // TODO: I have to check for duplicates and stuff, make a set of IDs
                 // TODO: Enforce min and max votes
-                console.log("Successfully queried tangle\n");
+                console.log("Results: ", results);
                 for (transaction of results) {
-                    if (transaction.responses != undefined && Array.isArray(transaction.responses)) { // only look at vote transactions
-                        for (single_vote of transaction.responses) {
-                            title = Object.keys(single_vote)[0];
-                            if (ledger[title] != undefined) {
-                                val = single_vote[title];
-                                if (ledger[title][val] != undefined) {
-                                    ledger[title][val] = ledger[title][val] + 1;
-                                }
-                            }
+                    if (transaction.responses != undefined) {
+                        for (let property in transaction.responses) {
+                            ledger[property][transaction.responses[property]]++;
                         }
                     }
                 }
-                // console.log("\n", ledger);
                 resolve(ledger);
             }).catch((err) => {
-                // err_msg = "queryAndDecryptTangle failed:", err;
                 reject(err);
             });
         }).catch((err) => {
-            // err_msg = "getVoteDefinitions failed:", err;
             reject(err);
         });
     });
