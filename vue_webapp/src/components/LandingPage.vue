@@ -95,7 +95,12 @@
       </v-flex>
       <v-flex style="margin:10px;">
         <v-card style="background-color:#ffffff;opacity:0.9">
-          <form @submit.prevent=""  @success="">
+          <v-form 
+          v-model="valid"
+          ref="count_form"
+          @success = ""
+          lazy-validation
+          >
             <v-card-title>
               <v-flex class="text-xs-center" style="margin-top:0px;">
                 <h2> Count </h2>
@@ -109,6 +114,7 @@
                     label="Private Key"
                     id="private_key"
                     type="username"
+                    :rules="[v => !!v || 'Name is required']"
                     v-model="private_key"
                     required></v-text-field>
                 </v-flex>
@@ -116,16 +122,18 @@
                   <p> Member does not exist </p>
                 </v-flex>
                 <v-flex class="text-xs-center">
-                  <v-btn v-on:click="count_votes"  color="purple"
+                  <v-btn  
+                  color="purple"
                   flat
                   outline
+                  v-on:click="count_votes"
                   >
                     Start
                   </v-btn>
                 </v-flex>
               </v-layout>
             </v-card-text>
-          </form>
+          </v-form>
         </v-card>
       </v-flex>
     </v-layout>
@@ -140,9 +148,13 @@
     mixins: [TrueVote],
     data() {
       return {
+        valid: true,
         iota_wallet_seed: '',
         poll_key: '',
-        private_key: ''
+        private_key: '',
+        rules: [
+          () => 'Username or Password is incorrect'
+        ]
       }
     },
     methods: {
@@ -151,7 +163,9 @@
           +'&poll_key='+this.poll_key)
       },
       count_votes() {
-        router.push('/count?private_key='+this.private_key)
+        if (this.$refs.count_form.validate()) {
+          router.push('/count?private_key='+this.private_key)
+        }
       },
       on_test() {
         this.node_info_test()

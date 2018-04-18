@@ -201,9 +201,9 @@
       },
       create_poll(){
         this.initializePoll(this.dest_account, this.vote_definitions,
-                        this.start_time, this.end_time, this.voter_identifiers,
-                        this.poll_operators, this.iota_addr_ind,
-                        (error, result) => {
+          this.start_time, this.end_time, this.voter_identifiers,
+          this.poll_operators, this.iota_addr_ind,
+          (error, result) => {
             if (error) {
 
                 console.error("Failed to publish vote template to tangle")

@@ -12,7 +12,7 @@
       </v-toolbar-title>
     </v-toolbar>
     <v-content>
-      <router-view/>
+      <router-view v-on:snackbar="_snackbar"/>
     </v-content>
     <v-snackbar
       :timeout="timeout"
@@ -75,7 +75,11 @@
       }
     },
     methods: {
-
+      _snackbar(timeout,text) {
+        this.timeout = timeout
+        this.text = text
+        this.snackbar = true
+      }
     },
     name: 'App',
     mounted() {
