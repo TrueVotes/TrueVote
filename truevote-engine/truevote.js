@@ -33,7 +33,7 @@ exports.node_info_test = function() {
 
 /**
  * Helper function to encrypt any message using a public key and returns the 
- * encrypted message
+ * encrypted message. Can take in any string and returns encrypted string.
  * 
  * @param {string} msg - msg to be encrypted
  * @param {string} pub_key - public key used for encryption
@@ -44,7 +44,7 @@ function encrypt(msg, pub_key) {
 }
 
 /**
- * Helper function to decrypt any encrypted message
+ * Helper function to decrypt any encrypted message, encrypted with this library
  * 
  * @param {string} msg - msg to be decrypted
  * @param {string} priv_key - private key used for decryption
@@ -55,7 +55,7 @@ function decrypt(msg, priv_key) {
 }
 
 /**
- * Public function to decrypt any encrypted message
+ * Public function to decrypt any encrypted message, encrypted with this library
  * 
  * @param {string} msg - msg to be decrypted
  * @param {string} priv_key - private key used for decryption
@@ -66,7 +66,7 @@ exports.decryptTransaction = function(data, priv_key) {
 }
 
 /**
- * Public function to encrypt any message
+ * Public function to encrypt any message in the form of a string
  * 
  * @param {string} msg - msg to be encrypted
  * @param {string} pub_key - public key used for encryption
@@ -74,29 +74,6 @@ exports.decryptTransaction = function(data, priv_key) {
  */
 exports.encryptTransaction = function(data, priv_key) {
     return cryptico.encrypt(msg, pub_key).cipher;
-}
-
-/**
- * Takes in an array of iota transactions from recieved from findTransactionObjects(addr).
- * Parses through results and returns a decrypted array of json data of transaction
- * message content.
- * 
- * @param {object} iota_response - repsonse from findTransactionObjects
- * @param {object} priv_key - key to decrypt data
- * @return {object} contents - array of json data of transaction contents
- */
-function parseAndDecryptQuery(iota_response, priv_key) {
-    contents = [];
-    for (var resp of iota_response) {
-        payload = parseTrytePayload(resp.signatureMessageFragment);
-        payload_decrypted = cryptico.decrypt(payload, priv_key).plaintext;
-        if (payload_decrypted != undefined) {
-            payload = payload_decrypted
-        }
-        payload = JSON.parse(payload);
-        contents.push(payload);
-    }
-    return contents;
 }
 
 /**
@@ -123,7 +100,8 @@ function parseTrytePayload(iota_payload) {
 }
 
 /**
- * Helper function for converting an iota response to a client friendly message, for multiple responses
+ * Helper function for converting an iota response to a client friendly message,
+ * for multiple responses
  *
  * @param {array} iota_reponse - raw data response from the iota tangle after submitting
  *                               a transaction
@@ -138,6 +116,29 @@ function parseTransactions(iota_response) {
             payload = JSON.parse(payload);
         } catch (err) {
         }
+        contents.push(payload);
+    }
+    return contents;
+}
+
+/**
+ * Takes in an array of iota transactions from recieved from findTransactionObjects(addr).
+ * Parses through results and returns an array of decrypted json data of transaction
+ * message contents.
+ * 
+ * @param {object} iota_response - repsonse from findTransactionObjects
+ * @param {object} priv_key - key to decrypt data
+ * @return {object} contents - array of json data of transaction contents
+ */
+function parseAndDecryptTransactions(iota_response, priv_key) {
+    contents = [];
+    for (var resp of iota_response) {
+        payload = parseTrytePayload(resp.signatureMessageFragment);
+        payload_decrypted = cryptico.decrypt(payload, priv_key).plaintext;
+        if (payload_decrypted != undefined) {
+            payload = payload_decrypted
+        }
+        payload = JSON.parse(payload);
         contents.push(payload);
     }
     return contents;
@@ -225,7 +226,7 @@ exports.queryAndDecryptTangle = function(addr, priv_key) {
                                   error);
                     reject(error);
                 } else {
-                    resolve(parseAndDecryptQuery(result, priv_key));
+                    resolve(parseAndDecryptTransactions(result, priv_key));
                 }
             }
         );
@@ -302,7 +303,7 @@ exports.initializePollFromTemplate = function(path, iota_addr_ind) {
  * @param {string[]} voter_identifiers - list of identifiers to hash for the user
  * @param {int[]} poll_operators - list of account IDs for poll operators
  * @param {int} iota_addr_ind - each unique poll MUST have a unique iota address generation index
-*
+ *
  * @throws exception if the poll ID is not unique
  * @throws exception if poll initialization message could not be attached to the tangle
  *
