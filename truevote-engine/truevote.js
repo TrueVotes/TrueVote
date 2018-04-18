@@ -10,7 +10,7 @@ const cryptico = require('cryptico');
 const FULL_NODE_ADDR = "https://field.carriota.com:443";
 // const SEED = "OLXCLVSZONEYGZHWRQYGWYLCECRNVREEJVCPEWVOYCKYGFLXPERVWRDM9W9GYWMJUJRWCVSXLRLFSNTRX";
 // const SEED = "PTDOUAJJKHR9PUKHJVUNBWXEHPRA9YSLBQEFRJSAFPUM9ILJPJVSDGMKQZLAFZUAVIKZHKGEMCFUEEORE";
-const SEED = "VZEWUEULPBTWML9BFKIKRZQLTNCTXDUW9KRPDOCXCOHCRZNGTMPDW9SMURQSSQZDJEBVVBPWSSXBIKSHP";
+// const SEED = "VZEWUEULPBTWML9BFKIKRZQLTNCTXDUW9KRPDOCXCOHCRZNGTMPDW9SMURQSSQZDJEBVVBPWSSXBIKSHP";
 
 const iota = new IOTA({
     provider: FULL_NODE_ADDR
@@ -234,10 +234,10 @@ exports.queryAndDecryptTangle = function(addr, priv_key) {
 }
 
 
-function generateIotaAddrs(ind) {
+function generateIotaAddrs(ind, seed) {
 
     return new Promise((resolve, reject) => {
-        iota.api.getNewAddress(SEED, {index : ind}, (error, new_addrs) => {
+        iota.api.getNewAddress(seed, {index : ind}, (error, new_addrs) => {
             if (error) {
                 console.error("Failed to generate a new address");
                 reject(error);
@@ -256,14 +256,15 @@ exports.generateAddresses = generateIotaAddrs;
 *
 * @param {string} path - the relative path to the filled in template
 * @param {int} iota_addr_ind - each unique poll MUST have a unique iota address generation index
+* @param {string} seed - seed to generate iota address
 * @return {object} Promise - Promise object which returns info about transaction
 */
-exports.initializePollFromTemplate = function(path, iota_addr_ind) {
+exports.initializePollFromTemplate = function(path, iota_addr_ind, seed) {
 
     const template = JSON.parse(fs.readFileSync(path));
     return new Promise((resolve, reject) => {
 
-        generateIotaAddrs(iota_addr_ind).then((addr_arr) => {
+        generateIotaAddrs(iota_addr_ind, seed).then((addr_arr) => {
 
             template.poll_address = addr_arr;
             const tryteData = iota.utils.toTrytes(JSON.stringify(template));
@@ -275,7 +276,7 @@ exports.initializePollFromTemplate = function(path, iota_addr_ind) {
                 }
             ];
 
-            iota.api.sendTransfer(SEED, 1, 14, transfer, (error, result) => {
+            iota.api.sendTransfer(seed, 1, 14, transfer, (error, result) => {
                 if (error) {
                     console.error("Failed to publish vote template to tangle")
                     reject(error);
@@ -300,6 +301,7 @@ exports.initializePollFromTemplate = function(path, iota_addr_ind) {
  * @param {string[]} voter_identifiers - list of identifiers to hash for the user
  * @param {int[]} poll_operators - list of account IDs for poll operators
  * @param {int} iota_addr_ind - each unique poll MUST have a unique iota address generation index
+ * @param {string} seed - seed to generate iota address
  *
  * @throws exception if the poll ID is not unique
  * @throws exception if poll initialization message could not be attached to the tangle
@@ -308,7 +310,7 @@ exports.initializePollFromTemplate = function(path, iota_addr_ind) {
  */
 exports.initializePoll = function(destination_account, vote_definitions,
                                   start_time, end_time, voter_identifiers,
-                                  poll_operators, iota_addr_ind) {
+                                  poll_operators, iota_addr_ind, seed) {
 
     const poll_data = {
         "poll_address" : "",
@@ -333,7 +335,7 @@ exports.initializePoll = function(destination_account, vote_definitions,
                 }
             ];
 
-            iota.api.sendTransfer(SEED, 1, 14, transfer, (error, result) => {
+            iota.api.sendTransfer(seed, 1, 14, transfer, (error, result) => {
                 if (error) {
                     console.error("Failed to publish vote poll_data to tangle")
                     reject(error);
@@ -344,7 +346,7 @@ exports.initializePoll = function(destination_account, vote_definitions,
             });
         }).catch((err) => reject(err));
     });
-    
+
 }
 
 /**
@@ -453,10 +455,11 @@ exports.getVoteDefinitions = function(addr) {
  * @param voter_id
  * @param responses
  * @param pub_key
+ * @param seed
  *
  * @throws exception if message could not be attached to tangle
  */
-exports.placeVote = function(addr, voter_id, voter_responses, pub_key) {
+exports.placeVote = function(addr, voter_id, voter_responses, pub_key, seed) {
 
     var data = {
         id : crypto.createHash("sha256").update(voter_id).digest("hex"),
@@ -477,7 +480,7 @@ exports.placeVote = function(addr, voter_id, voter_responses, pub_key) {
     
     return new Promise((resolve, reject) => {
 
-        iota.api.sendTransfer(SEED, 1, 14, transfer, (error, result) => {
+        iota.api.sendTransfer(seed, 1, 14, transfer, (error, result) => {
 
             if (error) {
                 console.error("Failed to submit individual vote to the tangle");
