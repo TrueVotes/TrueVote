@@ -76,6 +76,15 @@ exports.encryptTransaction = function(data, priv_key) {
     return cryptico.encrypt(msg, pub_key).cipher;
 }
 
+/**
+ * Takes in an array of iota transactions from recieved from findTransactionObjects(addr).
+ * Parses through results and returns a decrypted array of json data of transaction
+ * message content.
+ * 
+ * @param {object} iota_response - repsonse from findTransactionObjects
+ * @param {object} priv_key - key to decrypt data
+ * @return {object} contents - array of json data of transaction contents
+ */
 function parseAndDecryptQuery(iota_response, priv_key) {
     contents = [];
     for (var resp of iota_response) {
