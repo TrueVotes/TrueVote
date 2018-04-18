@@ -132,6 +132,7 @@ Note that to encrypt the vote responses, a key will have been distributed to the
        *
        * @param {string} path - the relative path to the filled in template
        * @param {int} iota_addr_ind - each unique poll MUST have a unique iota address generation index
+       * @param {string} seed - seed to generate iota address
        * @return {object} Promise - Promise object which returns info about transaction
        */
 
@@ -148,6 +149,7 @@ Note that to encrypt the vote responses, a key will have been distributed to the
        * @param {string[]} voter_identifiers - list of identifiers to hash for the user
        * @param {int[]} poll_operators - list of account IDs for poll operators
        * @param {int} iota_addr_ind - each unique poll MUST have a unique iota address generation index
+       * @param {string} seed - seed to generate iota address
        *
        * @throws exception if the poll ID is not unique
        * @throws exception if poll initialization message could not be attached to the tangle
@@ -194,6 +196,7 @@ Note that to encrypt the vote responses, a key will have been distributed to the
        * @param voter_id
        * @param responses
        * @param pub_key
+       * @param seed
        * @throws exception if message could not be attached to tangle
        */
        
