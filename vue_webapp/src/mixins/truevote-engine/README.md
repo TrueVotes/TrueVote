@@ -270,8 +270,4 @@ Note that to encrypt the vote responses, a key will have been distributed to the
 - ensure vote has been accepted on tangle --> currently planning buffer on webapp until accepted & add functionality for a user to check his/her vote
 - mechanism to deal with messages not accepted to be attached to the tangle --> currently assuming all messages will be attached
 
-## Bugs / Issues
-
-- Seed is currently hardcoded into backend "truevote.js". For some reason iota.api.getNewAddress(SEED) generates the same address every time. It SHOULD be unique based on IOTA documentation, and it not being so causes issues when you try to create a new poll. Therefore any time you create a new poll, you must manually change the seed or the index (the index change SHOULD be changing on its own when it isn't specified, but it's not). There should be a code fix for this.
-
 
