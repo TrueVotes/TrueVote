@@ -109,12 +109,24 @@
             <v-card-text>
               <v-layout column>
                 <v-flex>
+                  <v-flex>
+                    <v-text-field
+                      name="address"
+                      label="Address"
+                      id="address"
+                      type="username"
+                      v-model="address"
+                      multi-line
+                      :rules="[v => !!v || 'Key is required',
+                      , v => v.length == 81 || 'Key must be 81 characters long.']"
+                      required>
+                    </v-text-field>
+                  </v-flex>
                   <v-text-field
                     name="private_key"
                     label="Private Key"
                     id="private_key"
                     type="username"
-                    :rules="[v => !!v || 'Name is required']"
                     v-model="private_key"
                     required></v-text-field>
                 </v-flex>
@@ -151,6 +163,7 @@
         valid: true,
         iota_wallet_seed: '',
         poll_key: '',
+        address: '',
         private_key: '',
         rules: [
           () => 'Username or Password is incorrect'
@@ -164,7 +177,7 @@
       },
       count_votes() {
         if (this.$refs.count_form.validate()) {
-          router.push('/count?private_key='+this.private_key)
+          router.push('/count?private_key='+this.private_key+'&address='+this.address)
         }
       },
       on_test() {

@@ -162,6 +162,11 @@
 <script>
   import TrueVote from '../mixins/TrueVote.js'
 
+  var Chance = require('chance');
+
+  // Instantiate Chance so it can be used
+  var chance = new Chance();
+
   export default {
     mixins: [TrueVote],
     data () {
@@ -202,7 +207,7 @@
       create_poll(){
         this.initializePoll(this.dest_account, this.vote_definitions,
           this.start_time, this.end_time, this.voter_identifiers,
-          this.poll_operators, this.iota_addr_ind,
+          this.poll_operators, this.iota_addr_ind, this.seed,
           (error, result) => {
             if (error) {
 

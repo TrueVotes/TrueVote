@@ -21,7 +21,7 @@ const iota = new IOTA({
 export default {
   data () {
   	return {
-  		seed: 'something',
+  		seed: 'VZEWUEULPBTWML9BFKIKRZQLTNCTXDUW9KRPDOCXCOHCRZNGTMPDW9SMURQSSQZDJEBVVBPWSSXBIKSHP',
       FULL_NODE_ADDRESS: "https://field.carriota.com:443"
   	}
   },
@@ -140,7 +140,7 @@ export default {
     },
     initializePoll(destination_account, vote_definitions,
                                   start_time, end_time, voter_identifiers,
-                                  poll_operators, iota_addr_ind, on_initialize) {
+                                  poll_operators, iota_addr_ind, seed, on_initialize) {
       const poll_data = {
           "poll_address" : "",
           "destination_account" : destination_account,
@@ -155,27 +155,30 @@ export default {
 
       return new Promise((resolve, reject) => {
 
-          iota.api.getNewAddress(SEED, (error, new_addr) => {
+          self.generateIotaAddrs(iota_addr_ind).then((addr_arr) => {
 
-              if (error) {
-                  console.error("Failed to generate new address poll init");
-                  reject(error);
-                  
-              } else {
+            poll_data.poll_address = addr_arr;
+            const tryteData = iota.utils.toTrytes(JSON.stringify(poll_data));
+            const transfer = [
+                {
+                    value : 0,
+                    address :  addr_arr,
+                    message : tryteData
+                }
+            ];
 
-                  poll_data.poll_address = new_addr;
-                  const tryteData = iota.utils.toTrytes(JSON.stringify(poll_data));
-                  const transfer = [
-                              {
-                                  value : 0,
-                                  address :  new_addr,
-                                  message : tryteData
-                              }
-                  ];
+            iota.api.sendTransfer(seed, 1, 14, transfer, (error, result) => {
+                if (error) {
+                    console.error("Failed to publish vote poll_data to tangle")
+                    reject(error);
+                } else {
+                    console.log("New poll successfully published: ", result);
+                        resolve(parseTransaction(result));
+                }
+            });
 
-                  iota.api.sendTransfer(SEED, 1, 14, transfer, on_initialize);
-              }
-          });
+          }).catch((err) => reject(err));
+
       });
     },
     getVoteDefinitions(addr, ret_promise) {
@@ -249,7 +252,46 @@ export default {
           }
         });
       });
-    }
+    },
+    countVotes(addr, priv_key) {
+      if (!addr) {
+          return Promise.reject(
+              new Error("Cannot get voter definitions with null addr"));
+      }
+
+      return new Promise((resolve, reject) => {
+
+      this.getVoteDefinitions(addr)
+        .then((defns) => {
+          ledger = {}
+          for (def of defns) {
+            var responses = {};
+            for (option in def.responses) {
+              responses[option] = 0;
+            }
+            ledger[def.title] = responses;
+          }
+          this.queryAndDecryptTangle(addr, priv_key)
+          .then((results) => {
+              // TODO: I have to check for duplicates and stuff, make a set of IDs
+              // TODO: Enforce min and max votes
+              console.log("Results: ", results);
+              for (transaction of results) {
+                  if (transaction.responses != undefined) {
+                      for (let property in transaction.responses) {
+                          ledger[property][transaction.responses[property]]++;
+                      }
+                  }
+              }
+              resolve(ledger);
+          }).catch((err) => {
+              reject(err);
+          });
+      }).catch((err) => {
+          reject(err);
+      });
+    });
+}
   }
 }
 

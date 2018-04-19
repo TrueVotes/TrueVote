@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "axios": "^0.18.0",
+    "chance": "^1.0.13",
     "cryptico": "^1.0.2",
     "iota.lib.js": "^0.4.7",
     "vue": "^2.5.2",

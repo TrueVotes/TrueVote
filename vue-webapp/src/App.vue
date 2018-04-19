@@ -4,6 +4,7 @@
       app
       :clipped-left="clipped"
       color="purple"
+      class="gradient"
     >
       <v-toolbar-title style="margin-right:20px;">
         <router-link to="/" tag="span" style="cursor: pointer;color: white;">
@@ -30,6 +31,12 @@
     </v-snackbar>
   </v-app>
 </template>
+
+<style>
+  .gradient {
+    background: linear-gradient(to bottom right, #9A30AE, orange);
+  }
+</style>
 
 <script>
 
