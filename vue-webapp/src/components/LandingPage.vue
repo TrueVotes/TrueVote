@@ -87,6 +87,8 @@
                     id="poll_key"
                     type="username"
                     v-model="poll_key"
+                    multi-line
+                    :rules="[v => !!v || 'Poll key required']"
                     required></v-text-field>
                 </v-flex>
                 <v-flex class="text-xs-center">
@@ -140,6 +142,8 @@
                     id="private_key"
                     type="username"
                     v-model="private_key"
+                    multi-line
+                    :rules="[v => !!v || 'Private key required for decryption']"
                     required></v-text-field>
                 </v-flex>
                 <v-flex id="warning" class="text-xs-center" style="visibility:hidden;color:#ff0000;">
