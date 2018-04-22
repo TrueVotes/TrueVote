@@ -1,6 +1,7 @@
 <template>
   <v-container fluid>
     <v-layout row wrap>
+
       <v-layout column>
         <v-flex style="margin:10px;">
           <v-card style="background-color:#ffffff;opacity:0.9;">
@@ -25,6 +26,7 @@
             </form>
           </v-card>
         </v-flex>
+
         <v-flex style="margin:10px;">
           <v-card style="background-color:#ffffff;opacity:0.9;">
             <form @submit.prevent=""  @success="">
@@ -49,9 +51,15 @@
           </v-card>
         </v-flex>
       </v-layout>
+
       <v-flex style="margin:10px;">
         <v-card style="background-color:#ffffff;opacity:0.9">
-          <form @submit.prevent=""  @success="">
+          <v-form 
+          v-model="valid"
+          ref="vote_form"
+          @success = ""
+          lazy-validation
+          >
             <v-card-title>
               <v-flex class="text-xs-center" style="margin-top:0px;">
                 <h2> Vote </h2>
@@ -60,15 +68,19 @@
             <v-card-text>
               <v-layout column>
                 <v-flex>
-                  <v-text-field
-                    name="iota_wallet_seed"
-                    label="IOTA Wallet Seed"
-                    id="iota_wallet_seed"
-                    type="username"
-                    v-model="iota_wallet_seed"
-                    required></v-text-field>
-                </v-flex>
-                <v-flex>
+                  <v-flex>
+                    <v-text-field
+                      name="iota_wallet_seed"
+                      label="IOTA Wallet Seed"
+                      id="iota_wallet_seed"
+                      type="username"
+                      v-model="iota_wallet_seed"
+                      multi-line
+                      :rules="[v => !!v || 'IOTA wallet seed is required',
+                      , v => v.length == 81 || 'Seed must be 81 characters long.']"
+                      required>
+                    </v-text-field>
+                  </v-flex>
                   <v-text-field
                     name="poll_key"
                     label="Poll Key"
@@ -77,22 +89,22 @@
                     v-model="poll_key"
                     required></v-text-field>
                 </v-flex>
-                <v-flex id="warning" class="text-xs-center" style="visibility:hidden;color:#ff0000;">
-                  <p> Member does not exist </p>
-                </v-flex>
                 <v-flex class="text-xs-center">
-                  <v-btn v-on:click="go_vote"  color="purple"
+                  <v-btn  
+                  color="purple"
                   flat
                   outline
+                  v-on:click="on_vote"
                   >
                     Vote
                   </v-btn>
                 </v-flex>
               </v-layout>
             </v-card-text>
-          </form>
+          </v-form>
         </v-card>
       </v-flex>
+
       <v-flex style="margin:10px;">
         <v-card style="background-color:#ffffff;opacity:0.9">
           <v-form 
@@ -117,8 +129,8 @@
                       type="username"
                       v-model="address"
                       multi-line
-                      :rules="[v => !!v || 'Key is required',
-                      , v => v.length == 81 || 'Key must be 81 characters long.']"
+                      :rules="[v => !!v || 'Address is required',
+                      , v => v.length == 81 || 'Address must be 81 characters long.']"
                       required>
                     </v-text-field>
                   </v-flex>
@@ -171,9 +183,11 @@
       }
     },
     methods: {
-      go_vote() {
-        router.push('/vote?wallet_seed='+this.iota_wallet_seed
-          +'&poll_key='+this.poll_key)
+      on_vote() {
+        if (this.$refs.vote_form.validate()) {
+          router.push('/vote?wallet_seed='+this.iota_wallet_seed
+            +'&poll_key='+this.poll_key)
+        }
       },
       count_votes() {
         if (this.$refs.count_form.validate()) {
