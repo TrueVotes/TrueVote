@@ -39,6 +39,10 @@ This is an open-source project and contributions for improvements as well as new
 
 3. **React webapp**: We would like to finish the implementation of the React webapp. As none of us were very familiar with React, we encountered a few issues with locally and globally storing data that would be need to accessed in the code later. We would appreciate any React developers to take a look at our codebase and flush out the implementation to make it functional.
 
+4. **Fraud detection dashboard**: We would like to create a dashboard that shows any possible fraud detections, e.g. from duplicate voter identification hashes. We do not want our algorithm to take these issues into consideration when counting votes (besides identical, duplicate messages), but instead just to display possible fraud data and leave it up to the poll creator to decide how to proceed with the information displayed.
+
+5. **Voting dashboard**: We would like to have a dashboard with some statistics displayed neatly such that voting statistics can easily be viewed and analyzed.
+
 
 ### Authors
 
