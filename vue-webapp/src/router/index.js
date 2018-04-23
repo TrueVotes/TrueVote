@@ -5,6 +5,7 @@ const routerOptions = [
   { path: '/', component: 'LandingPage' },
   { path: '/create', component: 'CreatePoll'},
   { path: '/count', component: 'Count'},
+  { path: '/votingStation', component: 'VotingStation'},
   { path: '/vote', component: 'Vote'}
 ]
 

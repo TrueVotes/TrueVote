@@ -56,13 +56,13 @@
         <v-card style="background-color:#ffffff;opacity:0.9">
           <v-form 
           v-model="valid"
-          ref="vote_form"
+          ref="vote_station_form"
           @success = ""
           lazy-validation
           >
             <v-card-title>
               <v-flex class="text-xs-center" style="margin-top:0px;">
-                <h2> Vote </h2>
+                <h2> Set Up Voting Station </h2>
               </v-flex>
             </v-card-title>
             <v-card-text>
@@ -83,22 +83,34 @@
                   </v-flex>
                   <v-text-field
                     name="poll_key"
-                    label="Poll Key"
+                    label="Encryption Key"
                     id="poll_key"
                     type="username"
                     v-model="poll_key"
                     multi-line
-                    :rules="[v => !!v || 'Poll key required']"
-                    required></v-text-field>
+                    :rules="[v => !!v || 'Encryption key required']"
+                    required>
+                  </v-text-field>
+                  <v-text-field
+                    name="session_password"
+                    label="Session Password"
+                    id="session_password"
+                    type="username"
+                    v-model="session_password"
+                    multi-line
+                    :rules="[v => !!v || 'Session password required',
+                    , v => v.length >= 8 || 'Password must be at least 8 characters long.']"
+                    required>
+                  </v-text-field>
                 </v-flex>
                 <v-flex class="text-xs-center">
                   <v-btn  
                   color="purple"
                   flat
                   outline
-                  v-on:click="on_vote"
+                  v-on:click="on_start_voting_station"
                   >
-                    Vote
+                    Set Up
                   </v-btn>
                 </v-flex>
               </v-layout>
@@ -138,12 +150,12 @@
                   </v-flex>
                   <v-text-field
                     name="private_key"
-                    label="Private Key"
+                    label="Decryption Key"
                     id="private_key"
                     type="username"
                     v-model="private_key"
                     multi-line
-                    :rules="[v => !!v || 'Private key required for decryption']"
+                    :rules="[v => !!v || 'Decryption key required']"
                     required></v-text-field>
                 </v-flex>
                 <v-flex id="warning" class="text-xs-center" style="visibility:hidden;color:#ff0000;">
@@ -187,9 +199,9 @@
       }
     },
     methods: {
-      on_vote() {
-        if (this.$refs.vote_form.validate()) {
-          router.push('/vote?wallet_seed='+this.iota_wallet_seed
+      on_start_voting_station() {
+        if (this.$refs.vote_station_form.validate()) {
+          router.push('/votingStation?wallet_seed='+this.iota_wallet_seed
             +'&poll_key='+this.poll_key)
         }
       },
