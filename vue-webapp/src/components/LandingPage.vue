@@ -1,6 +1,7 @@
 <template>
   <v-container fluid>
     <v-layout row wrap>
+
       <v-layout column>
         <v-flex style="margin:10px;">
           <v-card style="background-color:#ffffff;opacity:0.9;">
@@ -91,7 +92,12 @@
 
       <v-flex style="margin:10px;">
         <v-card style="background-color:#ffffff;opacity:0.9">
-          <form @submit.prevent=""  @success="">
+          <v-form 
+          v-model="valid"
+          ref="vote_form"
+          @success = ""
+          lazy-validation
+          >
             <v-card-title>
               <v-flex class="text-xs-center" style="margin-top:0px;">
                 <h2> Vote </h2>
@@ -117,24 +123,26 @@
                     id="poll_key"
                     type="username"
                     v-model="poll_key"
+                    multi-line
+                    :rules="[v => !!v || 'Poll key required']"
                     required></v-text-field>
                 </v-flex>
-                <v-flex id="warning" class="text-xs-center" style="visibility:hidden;color:#ff0000;">
-                  <p> Member does not exist </p>
-                </v-flex>
                 <v-flex class="text-xs-center">
-                  <v-btn v-on:click="go_vote"  color="purple"
+                  <v-btn  
+                  color="purple"
                   flat
                   outline
+                  v-on:click="on_vote"
                   >
                     Vote
                   </v-btn>
                 </v-flex>
               </v-layout>
             </v-card-text>
-          </form>
+          </v-form>
         </v-card>
       </v-flex>
+
       <v-flex style="margin:10px;">
         <v-card style="background-color:#ffffff;opacity:0.9">
           <v-form 
@@ -171,6 +179,8 @@
                     id="private_key"
                     type="username"
                     v-model="private_key"
+                    multi-line
+                    :rules="[v => !!v || 'Private key required for decryption']"
                     required></v-text-field>
                 </v-flex>
                 <v-flex id="warning" class="text-xs-center" style="visibility:hidden;color:#ff0000;">
@@ -220,9 +230,11 @@
       }
     },
     methods: {
-      go_vote() {
-        router.push('/vote?wallet_seed='+this.iota_wallet_seed
-          +'&poll_key='+this.poll_key)
+      on_vote() {
+        if (this.$refs.vote_form.validate()) {
+          router.push('/vote?wallet_seed='+this.iota_wallet_seed
+            +'&poll_key='+this.poll_key)
+        }
       },
       count_votes() {
         if (this.$refs.count_form.validate()) {
