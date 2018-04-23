@@ -6,33 +6,18 @@
           <v-card style="min-width: 350px;">
             <v-card-title>
               <v-flex class="text-xs-center" style="margin-top:0px;">
-                <h2> Place a Vote </h2>
+                <h2> Open Poll for Voter </h2>
+                Please enter the appropriate identification information for the voter
               </v-flex>
             </v-card-title>
           </v-card>
-
-
-          <v-card style="margin-top:10px;">
-            <v-flex
-            v-for="(identifier, index) in voter_identifiers"
-            :key="index"
-            >
-              <v-card-title>
-                <v-layout row>
-                  <v-text-field
-                    name="voter_identifier"
-                    label="voter_identifiers[index]"
-                    id="voter_identifier"
-                    type="username"
-                    v-model="voter_identifier"
-                    required/>
-                  </v-text-field>
-                </v-layout>
-              </v-card-title>
-            </v-flex>
-          </v-card>
           
-          <form>
+          <v-form 
+          v-model="valid"
+          ref="voter_identification_form"
+          @success = ""
+          lazy-validation
+          >
             <v-card style="min-width: 350px;margin-top:10px;">
               <v-card-text>
                 <v-layout column>
@@ -43,6 +28,8 @@
                       id="first_name"
                       type="username"
                       v-model="first_name"
+                      multi-line
+                      :rules="[v => !!v || 'Required']"
                       required>
                     </v-text-field>
                   </v-flex>
@@ -53,6 +40,20 @@
                       id="last_name"
                       type="username"
                       v-model="last_name"
+                      multi-line
+                      :rules="[v => !!v || 'Required']"
+                      required>
+                    </v-text-field>
+                  </v-flex>
+                  <v-flex>
+                    <v-text-field
+                      name="license_num"
+                      label="GTID"
+                      id="license_num"
+                      type="username"
+                      v-model="license_num"
+                      multi-line
+                      :rules="[v => !!v || 'Required']"
                       required>
                     </v-text-field>
                   </v-flex>
@@ -62,16 +63,16 @@
             <v-card style="margin-top:10px;">
               <v-card-text>
                 <v-flex class="text-xs-center">
-                  <v-btn v-on:click="create_poll" color="purple"
+                  <v-btn v-on:click="on_open_poll" color="purple"
                   flat
                   outline
                   >
-                    CREATE
+                    Open Poll
                   </v-btn>
                 </v-flex>
               </v-card-text>
             </v-card>
-          </form>
+          </v-form>
         </v-flex>
 
         <v-flex style="margin:10px;">
@@ -103,6 +104,7 @@
 </template>
 
 <script>
+  import router from '@/router'
   import TrueVote from '../mixins/TrueVote.js'
 
   var Chance = require('chance');
@@ -114,59 +116,23 @@
     mixins: [TrueVote],
     data () {
       return {
-        poll_id: null,
-        dest_account: null,
-        vote_title: null, 
-        start_time: null,
-        end_time: null,
-        vote_definitions: [
-        {title:'Edit Title', responses: ['Edit Response']}
-        ],
         voter_identifiers: [
           "SSN", "Driver ID", "First Name", "Last Name"
-        ],
-        poll_operators: [
-          ["Bob", "Jenna", "Jim"]
-        ],
-        iota_addr_ind: 20
+        ]
       }
     },
     methods: {
-      add_response(index) {
-        this.vote_definitions[index].responses.push('Edit Response')
+      on_open_poll() {
+        if (this.$refs.voter_identification_form.validate()) {
+          router.push('/vote')
+        }
       },
-      delete_response(index,response_index){
-        this.vote_definitions[index].responses.splice(response_index, 1)
-      },
-      add_vote_definition() {
-        this.vote_definitions.push({
-          title: 'Edit Title',
-          responses: ['Edit Response']
-        })
-      },
-      delete_definition(index) {
-        this.vote_definitions.splice(index, 1)
-      },
-      create_poll(){
-        this.initializePoll(this.dest_account, this.vote_definitions,
-          this.start_time, this.end_time, this.voter_identifiers,
-          this.poll_operators, this.iota_addr_ind, this.seed,
-          (error, result) => {
-            if (error) {
-
-                console.error("Failed to publish vote template to tangle")
-                reject(error);
-
-            } else {
-
-                console.log("New poll successfully published: ", result);
-                //resolve(self.parseTransaction(result));
-                alert('Poll successfully published!')
-            }
-        });
+      exit_voting_session() {
+        router.push('/')
       }
     }
   }
+
 </script>
 
 

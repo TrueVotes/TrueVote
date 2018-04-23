@@ -62,48 +62,31 @@
 
 <script>
 
-export default {
-  data () {
-    return {
-      iota_wallet_seed: '',
-      poll_key: '',
-      vote_definitions: [
-        {title:'President', responses: ['candidate 1', 'candidate 2', 'candidate 3']},
-        {title: 'VP', responses: ['candidate 4', 'candidate 5']}
-        ]
+  import router from '@/router'
+  import TrueVote from '../mixins/TrueVote.js'
+
+  export default {
+    data () {
+      return {
+        iota_wallet_seed: '',
+        poll_key: '',
+        vote_definitions: [
+          {title:'Georgia Tech Mascot', responses: ['Buzz', 'Ramblin Reck', 'Tech Tower T']},
+          {title: 'Georgia Tech President', responses: ['Buzz', 'Bud Peterson', 'George P. Burdell']}
+          ]
+      }
+    },
+
+    methods: {
+      on_submit() {
+        router.push('/')
+      }
+    },
+    mounted() {
+      this.iota_wallet_seed = this.$route.query.wallet_seed
+      this.poll_key = this.$route.query.poll_key
     }
-  },
-
-  methods: {
-    get_definitions() {
-      getVoteDefinitions(addr, (err, result) => {
-        if (err) {
-          console.error("Failed to obtain voter defns with addr: ", addr);
-          reject(err);
-
-        } else if (result.length === 0) {
-
-          reject(new Error("No voter defns are returned with addr: ",
-                           addr));
-        } else {
-          this.vote_definitions = this.parseTransactions(result);
-          // defn = "";
-          // for (var resp of response) {
-          //     if (resp.voter_definitions != undefined) {
-          //         defn = resp.voter_definitions
-          //     }
-          // }
-          //resolve(defn);
-          alert(this.vote_definitions)
-        }
-      })
-    }
-  },
-  mounted() {
-    this.iota_wallet_seed = this.$route.query.wallet_seed
-    this.poll_key = this.$route.query.poll_key
   }
-}
 
 </script>
 

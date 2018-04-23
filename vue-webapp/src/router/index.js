@@ -6,7 +6,8 @@ const routerOptions = [
   { path: '/create', component: 'CreatePoll'},
   { path: '/count', component: 'Count'},
   { path: '/votingStation', component: 'VotingStation'},
-  { path: '/vote', component: 'Vote'}
+  { path: '/vote', component: 'Vote'},
+  { path: '/submit', component: 'Submit'}
 ]
 
 const routes = routerOptions.map(route => {
