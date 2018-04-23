@@ -104,16 +104,9 @@
                       label="Destination Account"
                       id="dest_account"
                       type="username"
+                      multi-line
+                      rows="2"
                       v-model="dest_account"
-                      required></v-text-field>
-                  </v-flex>
-                  <v-flex>
-                    <v-text-field
-                      name="vote_title"
-                      label="Vote Title"
-                      id="vote_title"
-                      type="username"
-                      v-model="vote_title"
                       required></v-text-field>
                   </v-flex>
                   <v-flex>
@@ -173,7 +166,6 @@
       return {
         poll_id: null,
         dest_account: null,
-        vote_title: null, 
         start_time: null,
         end_time: null,
         vote_definitions: [

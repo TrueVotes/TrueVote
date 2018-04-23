@@ -50,6 +50,44 @@
             </form>
           </v-card>
         </v-flex>
+
+        <v-flex style="margin:10px;">
+          <v-card style="background-color:#ffffff;opacity:0.9;">
+            <v-card-title>
+              <v-flex class="text-xs-center" style="margin-top:0px;">
+                <h2> Generate Key </h2>
+              </v-flex>
+            </v-card-title>
+            <v-card-text>
+              <v-layout column>
+                <v-form 
+                lazy-validate 
+                ref="generate_rsa_form"
+                v-model="generate_rsa_valid">
+                  <v-flex>
+                    <v-text-field
+                      name="passphrase"
+                      label="Passphrase"
+                      id="passphrase"
+                      type="username"
+                      :rules="[v => !!v || 'Key is required']"
+                      v-model="passphrase"
+                      required></v-text-field>
+                  </v-flex>
+                  <v-flex class="text-xs-center">
+                    <v-btn v-on:click="generate_rsa" color="purple"
+                    flat
+                    outline
+                    >
+                      Generate
+                    </v-btn>
+                  </v-flex>
+                </v-form>
+              </v-layout>
+            </v-card-text>
+          </v-card>
+        </v-flex>
+
       </v-layout>
 
       <v-flex style="margin:10px;">
@@ -68,19 +106,17 @@
             <v-card-text>
               <v-layout column>
                 <v-flex>
-                  <v-flex>
-                    <v-text-field
-                      name="iota_wallet_seed"
-                      label="IOTA Wallet Seed"
-                      id="iota_wallet_seed"
-                      type="username"
-                      v-model="iota_wallet_seed"
-                      multi-line
-                      :rules="[v => !!v || 'IOTA wallet seed is required',
-                      , v => v.length == 81 || 'Seed must be 81 characters long.']"
-                      required>
-                    </v-text-field>
-                  </v-flex>
+                  <v-text-field
+                    name="iota_wallet_seed"
+                    label="IOTA Wallet Seed"
+                    id="iota_wallet_seed"
+                    type="username"
+                    multi-line
+                    rows="3"
+                    v-model="iota_wallet_seed"
+                    required></v-text-field>
+                </v-flex>
+                <v-flex>
                   <v-text-field
                     name="poll_key"
                     label="Encryption Key"
@@ -143,8 +179,9 @@
                       type="username"
                       v-model="address"
                       multi-line
-                      :rules="[v => !!v || 'Address is required',
-                      , v => v.length == 81 || 'Address must be 81 characters long.']"
+                      rows="3"
+                      :rules="[v => !!v || 'Key is required',
+                      , v => v.length == 81 || 'Key must be 81 characters long.']"
                       required>
                     </v-text-field>
                   </v-flex>
@@ -184,15 +221,21 @@
   import router from '@/router'
   import TrueVote from '../mixins/TrueVote.js'
 
+  var cryptico = require('cryptico')
+
+  var Bits = 1024; 
+
   export default {
     mixins: [TrueVote],
     data() {
       return {
         valid: true,
+        generate_rsa_valid: true,
         iota_wallet_seed: '',
         poll_key: '',
         address: '',
         private_key: '',
+        passphrase: '',
         rules: [
           () => 'Username or Password is incorrect'
         ]
@@ -212,6 +255,13 @@
       },
       on_test() {
         this.node_info_test()
+      },
+      generate_rsa() {
+        if (this.$refs.generate_rsa_form.validate()) {
+          var rsa_key = cryptico.generateRSAKey(this.passphrase, Bits);
+          var public_key = cryptico.publicKeyString(rsa_key);
+          alert('public key: ' + public_key + '\n\n' + 'private_key: ' + str(rsa_key) )
+        }
       }
     }
   }
@@ -220,18 +270,18 @@
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-h1, h2 {
-  font-weight: normal;
-}
-ul {
-  list-style-type: none;
-  padding: 0;
-}
-li {
-  display: inline-block;
-  margin: 0 10px;
-}
-a {
-  color: #42b983;
-}
+  h1, h2 {
+    font-weight: normal;
+  }
+  ul {
+    list-style-type: none;
+    padding: 0;
+  }
+  li {
+    display: inline-block;
+    margin: 0 10px;
+  }
+  a {
+    color: #42b983;
+  }
 </style>
