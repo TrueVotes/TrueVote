@@ -22,7 +22,8 @@ export default {
   data () {
   	return {
   		seed: 'VZEWUEULPBTWML9BFKIKRZQLTNCTXDUW9KRPDOCXCOHCRZNGTMPDW9SMURQSSQZDJEBVVBPWSSXBIKSHP',
-      FULL_NODE_ADDRESS: "https://field.carriota.com:443"
+      FULL_NODE_ADDRESS: "https://field.carriota.com:443",
+      _ledger: {}
   	}
   },
   methods: {
@@ -174,6 +175,7 @@ export default {
                 } else {
                     console.log("New poll successfully published: ", result);
                         resolve(parseTransaction(result));
+                    alert("New poll successfully published: " + result);
                 }
             });
 
@@ -284,6 +286,7 @@ export default {
                   }
               }
               resolve(ledger);
+              this._ledger = ledger
           }).catch((err) => {
               reject(err);
           });

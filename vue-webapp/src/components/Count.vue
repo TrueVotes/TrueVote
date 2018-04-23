@@ -1,7 +1,7 @@
 <template>
   <v-container fluid>
-    <v-layout row fluid>
-      <v-layout column>
+    <v-layout row wrap justify-space-around>
+      <v-layout column fluid>
         <v-flex style="margin:10px;">
           <v-card>
             <v-card-title>
@@ -29,6 +29,7 @@
                       , v => v.length == 81 || 'Key must be 81 characters long.']"
                       v-model="address"
                       multi-line
+                      rows="2"
                       required>
                     </v-text-field>
                   </v-flex>
@@ -41,6 +42,16 @@
                       v-model="private_key"
                       required>
                     </v-text-field>
+                  </v-flex>
+                  <v-flex class="text-xs-center">
+                    <v-btn
+                    v-on:click=""
+                    flat
+                    outline
+                    color="primary"
+                    >
+                      Update
+                    </v-btn>
                   </v-flex>
                 </v-layout>
               </v-form>
@@ -60,13 +71,13 @@
             </v-card-title>
           </v-card>
           <v-card style="margin-top:10px;">
-            <v-card-title>
-              <h2 color = "purple">
-                Content
-              </h2>
-            </v-card-title>
-            <v-card-content>
-            </v-card-content>
+          	<v-layout 
+              v-for="record in ledger"
+              column>
+	            <v-card-content>
+              		{{record.title}}
+	            </v-card-content>
+            </v-layout>
           </v-card>
         </v-flex>
       </v-layout>
@@ -94,6 +105,8 @@
     mounted() {
       this.private_key = this.$route.query.private_key
       this.address = this.$route.query.address
+      this.ledger = [{title: 'guy'}]
+      this.countVotes(this.address, this.private_key)
     }
   }
 
