@@ -27,6 +27,7 @@ exports.node_info_test = function() {
 	    console.error(err);
 	} else {
 	    console.log(success);
+        return success;
 	}
     });
 }

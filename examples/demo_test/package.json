@@ -1,0 +1,11 @@
+{
+  "name": "demo_test",
+  "version": "1.0.0",
+  "description": "This is a demonstration of the truevote package.",
+  "main": "demo_test.js",
+  "author": "Eric Martin",
+  "license": "MIT",
+  "dependencies": {
+    "truevote": "^1.0.0"
+  }
+}

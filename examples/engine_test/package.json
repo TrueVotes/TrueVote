@@ -1,0 +1,11 @@
+{
+  "name": "engine_test",
+  "version": "1.0.0",
+  "description": "Testing the engine",
+  "main": "engine_test.js",
+  "author": "Eric Martin",
+  "license": "MIT",
+  "dependencies": {
+    "truevote": "^1.0.0"
+  }
+}

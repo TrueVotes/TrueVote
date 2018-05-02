@@ -1,4 +1,4 @@
-const engine = require("./truevote.js");
+const engine = require('truevote');
 const cryptico = require('cryptico');
 var PassPhrase = "The Moon is a Harsh Mistress."; 
 var Bits = 1024; 
