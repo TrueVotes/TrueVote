@@ -16,24 +16,25 @@ const iota = new IOTA({
     provider: FULL_NODE_ADDR
 });
 
+const standard_info_test_promise = (err, success) => {
+  if (err) {
+    console.error(err);
+  } else {
+    console.log(success);
+  }
+}
+
 /**
  * This is just a test to make sure we're connecting to the node. Also
  * let's us get information on said iota node.
  */
-exports.node_info_test = function() {
+exports.node_info_test = function(promise = standard_info_test_promise) {
 
-    iota.api.getNodeInfo((err, success) => {
-	if (err) {
-	    console.error(err);
-	} else {
-	    console.log(success);
-        return success;
-	}
-    });
+  iota.api.getNodeInfo(promise);
 }
 
 /**
- * Helper function to encrypt any message using a public key and returns the 
+ * Helper functioen to encrypt any message using a public key and returns the 
  * encrypted message. Can take in any string and returns encrypted string.
  * 
  * @param {string} msg - msg to be encrypted
@@ -169,6 +170,9 @@ function parseTransaction(iota_response) {
     };
     return msg;
 }
+
+
+
 
 /**
  * Will query the tangle based on the provided address assoicated with a
